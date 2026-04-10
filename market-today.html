@@ -741,7 +741,7 @@
             const activeBtn = document.getElementById(`btn-${type}`);
             activeBtn.className = `mover-tab active px-3 py-1 text-xs font-mono rounded ${type==='gainers'?'bg-brand-green/20 text-brand-green':'bg-brand-red/20 text-[#ff3366]'}`;
         }
-        showMovers('gainers');
+        showMovers('gainers'); //
 
         // === CHART RANGE BUTTONS ===
         document.querySelectorAll('.chart-range-btn').forEach(btn => {

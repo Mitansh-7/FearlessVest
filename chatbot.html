@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fearlessvest | Trade Analyst AI</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Syne', 'sans-serif'], mono: ['Space Mono', 'monospace'] },
+                    colors: { brand: { dark: '#030d1a', blue: '#00f0ff', green: '#00ff88', red: '#ff3366' } }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #030d1a;
+            font-family: 'Syne', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.012) 2px, rgba(0,240,255,0.012) 4px);
+            pointer-events: none; z-index: 9998;
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glass {
+            background: rgba(5, 19, 41, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.08);
+        }
+
+        /* Message bubbles */
+        .msg-user {
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 16px 16px 4px 16px;
+            animation: msg-in-right 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .msg-ai {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 4px 16px 16px 16px;
+            animation: msg-in-left 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes msg-in-right {
+            from { opacity: 0; transform: translateX(12px) scale(0.97); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes msg-in-left {
+            from { opacity: 0; transform: translateX(-12px) scale(0.97); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        /* Chat scroll */
+        #chat-messages {
+            scroll-behavior: smooth;
+        }
+        #chat-messages::-webkit-scrollbar { width: 4px; }
+        #chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.15); border-radius: 2px; }
+
+        /* Typing indicator */
+        .typing-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #00f0ff;
+            animation: typing-bounce 1.2s ease-in-out infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing-bounce {
+            0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Input */
+        #msg-input {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,240,255,0.12);
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            color: white;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #msg-input:focus { border-color: rgba(0,240,255,0.35); }
+        #msg-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        /* Send button */
+        #send-btn {
+            transition: all 0.2s ease;
+        }
+        #send-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,240,255,0.4); }
+        #send-btn:active { transform: scale(0.96); }
+        #send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Suggestion chips */
+        .chip {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .chip:hover {
+            background: rgba(0,240,255,0.1);
+            border-color: rgba(0,240,255,0.35);
+            color: #00f0ff;
+            transform: translateY(-1px);
+        }
+
+        /* Sidebar */
+        .sidebar-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .sidebar-item:hover {
+            background: rgba(0,240,255,0.05);
+            border-color: rgba(0,240,255,0.15);
+        }
+        .sidebar-item.active {
+            background: rgba(0,240,255,0.08);
+            border-color: rgba(0,240,255,0.25);
+        }
+
+        /* AI avatar pulse */
+        @keyframes avatar-glow {
+            0%,100% { box-shadow: 0 0 10px rgba(0,240,255,0.3); }
+            50% { box-shadow: 0 0 20px rgba(0,240,255,0.7), 0 0 40px rgba(0,240,255,0.2); }
+        }
+        .ai-avatar { animation: avatar-glow 3s ease-in-out infinite; }
+
+        /* Mood indicator */
+        .mood-bar { height: 3px; border-radius: 2px; transition: width 1s ease; }
+
+        nav a { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.08em; }
+    </style>
+</head>
+<body class="grid-bg">
+
+    <nav class="w-full z-50 glass border-b border-white/5" style="position:relative">
+        <div class="max-w-full px-6 py-3.5 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 text-lg font-bold text-white" style="font-family:'Syne',sans-serif">
+                <i class="fa-solid fa-chart-line text-brand-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.8)]"></i> Fearlessvest
+            </a>
+            <div class="hidden md:flex gap-8 text-slate-400">
+                <a href="index.html" class="hover:text-brand-blue transition uppercase tracking-widest">Home</a>
+                <a href="market-today.html" class="hover:text-brand-blue transition uppercase tracking-widest">Market</a>
+                <a href="sandbox.html" class="hover:text-brand-blue transition uppercase tracking-widest">Sandbox</a>
+                <a href="analysis.html" class="hover:text-brand-blue transition uppercase tracking-widest">Analysis</a>
+                <a href="chatbot.html" class="text-brand-blue uppercase tracking-widest">AI Quant</a>
+                <a href="dashboard.html" class="hover:text-brand-blue transition uppercase tracking-widest">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-[calc(100vh-57px)]">
+
+        <aside class="w-72 glass border-r border-white/5 flex flex-col hidden md:flex" style="font-family:'Syne',sans-serif">
+            <div class="p-5 border-b border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="relative">
+                        <div class="ai-avatar w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/30 flex items-center justify-center">
+                            <i class="fa-solid fa-microchip text-brand-blue text-xl"></i>
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-green border-2 border-[#030d1a]"></span>
+                    </div>
+                    <div>
+                        <div class="text-white font-bold text-sm">VERA - Quant</div>
+                        <div class="text-xs text-slate-400 font-mono">Technical Analysis AI</div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 leading-relaxed">
+                    I scan market trends, identify chart patterns, and provide hypothetical trade setups based on technical data.
+                </div>
+            </div>
+
+            <div class="p-5 border-b border-white/5">
+                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">Live Bias Indicators</div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span class="text-slate-400">Bullish Momentum</span>
+                            <span class="font-mono text-brand-green">62%</span>
+                        </div>
+                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div class="mood-bar bg-brand-green" style="width:62%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span class="text-slate-400">Volatility (VIX)</span>
+                            <span class="font-mono text-yellow-400">High</span>
+                        </div>
+                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div class="mood-bar bg-yellow-400" style="width:80%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4">
+                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">Recent Scans</div>
+                <div class="space-y-2">
+                    <div class="sidebar-item active p-3 rounded-xl">
+                        <div class="text-xs text-white font-semibold mb-0.5 truncate">Current Analysis</div>
+                        <div class="text-[10px] text-slate-500 font-mono">Today · Active</div>
+                    </div>
+                    <div class="sidebar-item p-3 rounded-xl">
+                        <div class="text-xs text-white/70 truncate">BTC/USD Support Levels</div>
+                        <div class="text-[10px] text-slate-500 font-mono">Yesterday · Crypto</div>
+                    </div>
+                    <div class="sidebar-item p-3 rounded-xl">
+                        <div class="text-xs text-white/70 truncate">NVDA Earnings Setup</div>
+                        <div class="text-[10px] text-slate-500 font-mono">Apr 7 · Tech Sector</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-w-0">
+
+            <div class="glass border-b border-white/5 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="ai-avatar w-9 h-9 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center">
+                        <i class="fa-solid fa-microchip text-brand-blue text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-white font-semibold text-sm">VERA — Quantitative Trade Analyst</div>
+                        <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-green inline-block"></span>
+                            Powered by LLaMA 3.1 · Technical Focus
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearChat()" class="px-3 py-1.5 text-[10px] font-mono rounded-lg bg-white/5 text-slate-400 hover:text-white border border-white/5 hover:border-white/15 transition uppercase tracking-widest">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+                <div class="flex gap-3 max-w-3xl">
+                    <div class="ai-avatar w-8 h-8 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-microchip text-brand-blue text-xs"></i>
+                    </div>
+                    <div class="msg-ai px-4 py-3 max-w-lg">
+                        <p class="text-sm text-slate-200 leading-relaxed mb-2">
+                            Systems online. I am <strong class="text-brand-blue">VERA</strong>, reconfigured for Quantitative Technical Analysis. 
+                        </p>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-2">
+                            I can analyze chart patterns, estimate price targets, and outline hypothetical trade setups (Entry, Stop Loss, Take Profit) based on technical data you provide.
+                        </p>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            What ticker or asset are we analyzing today?
+                        </p>
+                        <div class="mt-2 text-[10px] font-mono text-slate-500">VERA · Just now</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 border-t border-white/5 flex gap-2 flex-wrap" id="suggestion-area">
+                <button class="chip px-3 py-1.5 rounded-full bg-white/5 text-slate-400 border border-white/8 hover:border-brand-blue/30" onclick="useChip(this)">📈 Give me a trade setup for TSLA</button>
+                <button class="chip px-3 py-1.5 rounded-full bg-white/5 text-slate-400 border border-white/8 hover:border-brand-blue/30" onclick="useChip(this)">📉 What are the support levels for SPY?</button>
+                <button class="chip px-3 py-1.5 rounded-full bg-white/5 text-slate-400 border border-white/8 hover:border-brand-blue/30" onclick="useChip(this)">📊 Analyze a breakout scenario for AAPL</button>
+            </div>
+
+            <div class="px-6 py-4 border-t border-white/5 glass">
+                <div class="flex gap-3 items-end">
+                    <div class="flex-1 relative">
+                        <textarea
+                            id="msg-input"
+                            rows="1"
+                            class="w-full rounded-xl px-4 py-3 pr-12"
+                            placeholder="Ask VERA for a trade prediction, technical analysis, or support/resistance levels..."
+                            onkeydown="handleKey(event)"
+                            oninput="autoResize(this)"
+                            style="max-height:120px;"
+                        ></textarea>
+                    </div>
+                    <button id="send-btn" onclick="sendMessage()" class="w-12 h-12 rounded-xl bg-brand-blue flex items-center justify-center text-brand-dark flex-shrink-0 hover:bg-white">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // GROQ API KEY INJECTED
+        // ==========================================
+
+        const SYSTEM_PROMPT = `You are VERA, a highly advanced Quantitative Technical Market Analyst for the platform Fearlessvest.
+
+Your Objective:
+- Provide technical analysis, hypothetical trade setups, and trend predictions based on standard market indicators.
+- When asked for a trade prediction, clearly output a hypothetical scenario including: 
+  1. Entry Zone
+  2. Take Profit (TP) Targets
+  3. Stop Loss (SL)
+  4. Reasoning (RSI, MACD, Volume, Support/Resistance).
+- Adopt a professional, analytical, and sharp trader persona.
+- Format numbers cleanly. Use bolding (**text**) for key price levels and targets.
+- ALWAYS include a brief, one-sentence disclaimer at the very end stating that this is an AI simulation and not actual financial advice.
+- Keep your responses under 200 words. Be concise and actionable.`;
+
+        let conversationHistory = [];
+        let isLoading = false;
+
+        function addMessage(role, content) {
+            const container = document.getElementById('chat-messages');
+            const isUser = role === 'user';
+            const div = document.createElement('div');
+            div.className = `flex gap-3 ${isUser ? 'justify-end' : ''} max-w-3xl ${isUser ? 'ml-auto' : ''}`;
+
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+
+            if (isUser) {
+                div.innerHTML = `
+                    <div class="msg-user px-4 py-3 max-w-sm">
+                        <p class="text-sm text-white leading-relaxed">${escapeHtml(content)}</p>
+                        <div class="mt-1 text-[10px] font-mono text-brand-blue/50 text-right">You · ${time}</div>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-user text-brand-blue text-xs"></i>
+                    </div>
+                `;
+            } else {
+                const formatted = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                    .replace(/\n\n/g, '</p><p class="text-sm text-slate-300 leading-relaxed mt-2">')
+                    .replace(/\n/g, '<br>');
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center flex-shrink-0 mt-1 ai-avatar">
+                        <i class="fa-solid fa-microchip text-brand-blue text-xs"></i>
+                    </div>
+                    <div class="msg-ai px-4 py-3 max-w-lg">
+                        <p class="text-sm text-slate-200 leading-relaxed">${formatted}</p>
+                        <div class="mt-2 text-[10px] font-mono text-slate-500">VERA · ${time}</div>
+                    </div>
+                `;
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.id = 'typing-indicator';
+            div.className = 'flex gap-3 max-w-3xl';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-microchip text-brand-blue text-xs"></i>
+                </div>
+                <div class="msg-ai px-4 py-4 flex items-center gap-1.5">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const t = document.getElementById('typing-indicator');
+            if (t) t.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const msg = input.value.trim();
+            
+            if (!msg || isLoading) return;
+
+            input.value = '';
+            input.style.height = 'auto';
+            document.getElementById('suggestion-area').style.display = 'none';
+
+            addMessage('user', msg);
+            conversationHistory.push({ role: 'user', content: msg });
+
+            isLoading = true;
+            document.getElementById('send-btn').disabled = true;
+            showTyping();
+
+            try {
+                // Using corsproxy.io to bypass browser security blocks for local HTML files
+                const API_URL = 'https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions';
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.1-8b-instant', // UPDATED TO ACTIVE MODEL
+                        messages: [
+                            { role: 'system', content: SYSTEM_PROMPT },
+                            ...conversationHistory
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 300
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                const aiText = data.choices[0].message.content;
+
+                hideTyping();
+                addMessage('assistant', aiText);
+                
+                conversationHistory.push({ role: 'assistant', content: aiText });
+
+            } catch (err) {
+                hideTyping();
+                addMessage('assistant', `⚠️ **Connection Failed:** ${err.message}. If it says '401 Unauthorized', your API key is invalid or deleted. You need to generate a new one at console.groq.com.`);
+                console.error(err);
+            }
+
+            isLoading = false;
+            document.getElementById('send-btn').disabled = false;
+            document.getElementById('msg-input').focus();
+        }
+
+        function useChip(btn) {
+            document.getElementById('msg-input').value = btn.textContent.trim().replace(/^[^\s]+\s/, '');
+            sendMessage();
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        function clearChat() {
+            conversationHistory = [];
+            document.getElementById('chat-messages').innerHTML = '';
+            document.getElementById('suggestion-area').style.display = 'flex';
+            addMessage('assistant', "Memory cleared. Standing by for new ticker analysis.", false);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+    </script>
+</body>
+</html>

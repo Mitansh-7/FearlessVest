@@ -312,6 +312,26 @@
         // ==========================================
         // GROQ API KEY INJECTED
         // ==========================================
+        // ==========================================
+        // ==========================================
+        // SECURE API KEY HANDLING
+        // ==========================================
+        let GROQ_API_KEY = localStorage.getItem('groqApiKey');
+
+        if (!GROQ_API_KEY) {
+            GROQ_API_KEY = prompt("🔒 Welcome to Fearlessvest!\n\nPlease enter your free Groq API Key to enable the AI Analyst.\n(Your key is saved locally in your browser and never shared).");
+        if (GROQ_API_KEY) {
+            localStorage.setItem('groqApiKey', GROQ_API_KEY.trim());
+        } else {
+            alert("An API key is required. The AI will not respond until you provide one.");
+        }
+}
+
+// Function to clear the key if the user wants to log out or change it
+function resetApiKey() {
+    localStorage.removeItem('groqApiKey');
+    location.reload();
+}
 
         const SYSTEM_PROMPT = `You are VERA, a highly advanced Quantitative Technical Market Analyst for the platform Fearlessvest.
 

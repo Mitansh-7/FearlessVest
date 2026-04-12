@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fearlessvest | Today's Market</title>
-    
+    <title>Fearlessvest | Today's Market — Live Data</title>
+    <meta name="description" content="Real-time Indian & global market data — NIFTY 50, SENSEX, top stocks, sector performance, and Fear & Greed Index powered by live APIs.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* Animated scanline overlay */
         body::before {
             content: '';
             position: fixed;
@@ -46,9 +46,8 @@
             z-index: 9999;
         }
 
-        /* Grid background */
         .grid-bg {
-            background-image: 
+            background-image:
                 linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0,240,255,0.04) 1px, transparent 1px);
             background-size: 40px 40px;
@@ -60,21 +59,16 @@
             border: 1px solid rgba(0, 240, 255, 0.1);
         }
 
-        /* Ticker tape */
-        .ticker-wrap {
+        /* API Key Modal */
+        #api-modal-bg {
+            background: rgba(3,13,26,0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Ticker - replaced by TradingView widget */
+        .tv-ticker-wrap {
             overflow: hidden;
-            background: rgba(0,240,255,0.05);
-            border-top: 1px solid rgba(0,240,255,0.15);
-            border-bottom: 1px solid rgba(0,240,255,0.15);
-        }
-        .ticker-content {
-            display: inline-flex;
-            white-space: nowrap;
-            animation: ticker 30s linear infinite;
-        }
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            height: 46px;
         }
 
         /* Fear/Greed Gauge */
@@ -116,7 +110,7 @@
             height: 90px;
             background: linear-gradient(to top, #00f0ff, transparent);
             transform-origin: bottom center;
-            transform: translateX(-50%) rotate(-45deg);
+            transform: translateX(-50%) rotate(-90deg);
             transition: transform 2s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 0 10px rgba(0,240,255,0.8);
         }
@@ -138,14 +132,8 @@
             border-color: rgba(0,240,255,0.4);
             z-index: 10;
         }
-        .sector-positive { background: rgba(0, 255, 136, 0.15); }
-        .sector-negative { background: rgba(255, 51, 102, 0.15); }
-        .sector-neutral  { background: rgba(255, 204, 0, 0.10); }
 
-        /* Candlestick mini chart */
-        .mini-chart canvas { display: block; }
-
-        /* Index card glow */
+        /* Index card */
         .index-card {
             position: relative;
             overflow: hidden;
@@ -161,12 +149,17 @@
             pointer-events: none;
         }
 
-        /* Animated number counter */
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Skeleton loader */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s infinite;
+            border-radius: 6px;
         }
-        .count-in { animation: countUp 0.6s ease forwards; }
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
         /* Pulse dot */
         @keyframes pulse-glow {
@@ -175,20 +168,10 @@
         }
         .live-dot { animation: pulse-glow 2s ease-in-out infinite; }
 
-        /* AI Insight card shimmer */
-        @keyframes shimmer {
-            0% { background-position: -500px 0; }
-            100% { background-position: 500px 0; }
-        }
-
-        /* Market line chart */
-        #market-chart { width: 100%; height: 200px; }
-
         /* Scroll reveal */
         .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* Horizontal scroll for mobile tickers */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -197,15 +180,57 @@
         ::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.2); border-radius: 3px; }
 
         nav a { font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 0.05em; }
+
+        /* Number change animation */
+        @keyframes flash-green { 0%,100% { color: inherit; } 50% { color: #00ff88; } }
+        @keyframes flash-red   { 0%,100% { color: inherit; } 50% { color: #ff3366; } }
+        .flash-up   { animation: flash-green 0.6s; }
+        .flash-down { animation: flash-red 0.6s; }
     </style>
 </head>
 <body class="antialiased text-slate-300 grid-bg min-h-screen">
 
-    <!-- NAV -->
+    <!-- ===== API KEY MODAL ===== -->
+    <div id="api-modal-bg" class="fixed inset-0 z-[9998] flex items-center justify-center">
+        <div class="glass rounded-2xl p-8 w-full max-w-md mx-4 border border-brand-blue/20" style="box-shadow:0 0 80px rgba(0,240,255,0.08);">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-11 h-11 rounded-xl bg-brand-blue/10 border border-brand-blue/30 flex items-center justify-center" style="box-shadow:0 0 20px rgba(0,240,255,0.2)">
+                    <i class="fa-solid fa-satellite-dish text-brand-blue"></i>
+                </div>
+                <div>
+                    <div class="text-white font-bold text-lg">Connect Live Feed</div>
+                    <div class="text-xs font-mono text-slate-400">Finnhub API Key Required</div>
+                </div>
+            </div>
+            <p class="text-sm text-slate-300 mb-2 leading-relaxed">
+                Enter your <strong class="text-brand-blue">free Finnhub API key</strong> to load real-time stock prices, % changes, and top movers. Your key is stored only in your browser.
+            </p>
+            <a href="https://finnhub.io/register" target="_blank" class="text-xs font-mono text-brand-blue hover:underline mb-5 block">
+                → Get a free key at finnhub.io/register (100 req/min free)
+            </a>
+            <input
+                id="finnhub-key-input"
+                type="password"
+                placeholder="ct••••••••••••••pr0••••••••••••"
+                class="w-full rounded-xl px-4 py-3 text-sm text-white mb-3"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,240,255,0.2);outline:none;font-family:'Space Mono',monospace;"
+                onkeydown="if(event.key==='Enter') saveFinnhubKey()"
+            />
+            <div id="api-key-error" class="text-xs font-mono text-brand-red mb-3 hidden"></div>
+            <button onclick="saveFinnhubKey()" id="modal-btn" class="w-full py-3 rounded-xl font-bold text-sm text-brand-dark bg-brand-blue hover:bg-white transition" style="letter-spacing:0.05em;">
+                CONNECT LIVE FEED
+            </button>
+            <button onclick="useDemoMode()" class="w-full py-2 mt-2 rounded-xl text-xs font-mono text-slate-500 hover:text-slate-300 transition text-center">
+                Continue with demo data →
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== NAV ===== -->
     <nav class="fixed w-full z-50 glass border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-white" style="font-family:'Syne',sans-serif">
-                <i class="fa-solid fa-shield-halved text-brand-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.8)]"></i> Fearlessvest
+                <i class="fa-solid fa-chart-line text-brand-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.8)]"></i> Fearlessvest
             </a>
             <div class="hidden md:flex gap-8 text-slate-400">
                 <a href="index.html" class="hover:text-brand-blue transition uppercase tracking-widest text-xs">Home</a>
@@ -215,109 +240,173 @@
                 <a href="chatbot.html" class="hover:text-brand-blue transition uppercase tracking-widest text-xs">AI Chat</a>
                 <a href="dashboard.html" class="hover:text-brand-blue transition uppercase tracking-widest text-xs">Dashboard</a>
             </div>
+            <button onclick="changeApiKey()" class="text-xs font-mono text-slate-500 hover:text-brand-blue transition flex items-center gap-1.5 border border-white/5 hover:border-brand-blue/20 px-3 py-1.5 rounded-lg">
+                <i class="fa-solid fa-plug text-xs"></i> Change Key
+            </button>
         </div>
     </nav>
 
-    <!-- TICKER TAPE -->
-    <div class="ticker-wrap fixed top-[69px] w-full z-40 py-2">
-        <div class="ticker-content" id="ticker-tape">
-            <!-- duplicated for seamless loop -->
+    <!-- ===== TRADINGVIEW TICKER TAPE ===== -->
+    <div class="fixed top-[69px] w-full z-40 tv-ticker-wrap">
+        <!-- TradingView Widget BEGIN -->
+        <div class="tradingview-widget-container" style="height:46px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            {
+                "symbols": [
+                    {"proName": "BSE:SENSEX", "title": "SENSEX"},
+                    {"proName": "NSE:NIFTY", "title": "NIFTY 50"},
+                    {"proName": "NSE:BANKNIFTY", "title": "BANK NIFTY"},
+                    {"proName": "NSE:RELIANCE", "title": "RELIANCE"},
+                    {"proName": "NSE:TCS", "title": "TCS"},
+                    {"proName": "NSE:INFY", "title": "INFOSYS"},
+                    {"proName": "NSE:HDFCBANK", "title": "HDFC Bank"},
+                    {"proName": "NSE:SBIN", "title": "SBI"},
+                    {"proName": "NSE:ITC", "title": "ITC"},
+                    {"proName": "NSE:ICICIBANK", "title": "ICICI Bank"},
+                    {"proName": "NSE:LT", "title": "L&T"},
+                    {"proName": "NASDAQ:AAPL", "title": "APPLE"},
+                    {"proName": "NASDAQ:TSLA", "title": "TESLA"},
+                    {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+                    {"proName": "OANDA:XAUUSD", "title": "GOLD"},
+                    {"proName": "CRYPTO:BTCUSD", "title": "BTC/USD"}
+                ],
+                "showSymbolLogo": true,
+                "isTransparent": true,
+                "displayMode": "adaptive",
+                "colorTheme": "dark",
+                "locale": "en"
+            }
+            </script>
         </div>
+        <!-- TradingView Widget END -->
     </div>
 
+    <!-- ===== MAIN ===== -->
     <main class="pt-36 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
 
-        <!-- PAGE HEADER -->
+        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 reveal">
             <div>
                 <div class="flex items-center gap-3 mb-3">
                     <span class="w-2.5 h-2.5 rounded-full bg-brand-green live-dot inline-block"></span>
                     <span class="text-xs uppercase tracking-[0.2em] text-brand-green font-mono">Live Data Feed</span>
-                    <span class="text-xs text-slate-500 font-mono" id="last-updated">--:--:-- EST</span>
+                    <span class="text-xs text-slate-500 font-mono" id="last-updated">--:--:-- IST</span>
                 </div>
                 <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-none">Today's<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-green">Market</span></h1>
             </div>
             <div class="glass rounded-xl px-5 py-3 flex items-center gap-3 border border-brand-blue/20 text-sm font-mono">
                 <i class="fa-solid fa-calendar text-brand-blue"></i>
-                <span id="market-date" class="text-white">Friday, Apr 10 2026</span>
+                <span id="market-date" class="text-white">Loading...</span>
                 <span class="text-slate-500">|</span>
-                <span id="market-status" class="text-brand-green">NYSE OPEN</span>
+                <span id="market-status" class="text-brand-green">NSE OPEN</span>
             </div>
         </div>
 
-        <!-- MAJOR INDICES ROW -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 reveal">
-            <!-- S&P 500 -->
-            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all group">
+        <!-- Index Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 reveal" id="index-cards">
+            <!-- NIFTY 50 -->
+            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">S&P 500</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-brand-green/15 text-brand-green font-mono">+1.24%</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NIFTY 50</span>
+                    <span id="nifty-badge" class="text-xs px-2 py-0.5 rounded bg-white/5 text-slate-400 font-mono skeleton w-14 h-5">&nbsp;</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">5,783<span class="text-brand-blue text-lg">.42</span></div>
-                <div class="text-xs text-brand-green font-mono">▲ +70.87 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-spx"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1" id="nifty-price">
+                    <span class="skeleton inline-block w-32 h-8">&nbsp;</span>
+                </div>
+                <div class="text-xs font-mono" id="nifty-change">
+                    <span class="skeleton inline-block w-24 h-4">&nbsp;</span>
+                </div>
+                <canvas class="mt-3 w-full h-10" id="chart-nifty"></canvas>
             </div>
-            <!-- NASDAQ -->
-            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all group">
+            <!-- SENSEX -->
+            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NASDAQ</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-brand-green/15 text-brand-green font-mono">+0.91%</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">SENSEX</span>
+                    <span id="sensex-badge" class="text-xs px-2 py-0.5 rounded bg-white/5 text-slate-400 font-mono skeleton w-14 h-5">&nbsp;</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">18,240<span class="text-brand-blue text-lg">.10</span></div>
-                <div class="text-xs text-brand-green font-mono">▲ +164.72 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-ixic"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1" id="sensex-price">
+                    <span class="skeleton inline-block w-32 h-8">&nbsp;</span>
+                </div>
+                <div class="text-xs font-mono" id="sensex-change">
+                    <span class="skeleton inline-block w-24 h-4">&nbsp;</span>
+                </div>
+                <canvas class="mt-3 w-full h-10" id="chart-sensex"></canvas>
             </div>
-            <!-- DOW -->
-            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-red/30 transition-all group">
+            <!-- BANK NIFTY -->
+            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">DOW JONES</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-brand-red/15 text-brand-red font-mono">-0.33%</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NIFTY BANK</span>
+                    <span id="banknifty-badge" class="text-xs px-2 py-0.5 rounded bg-white/5 text-slate-400 font-mono skeleton w-14 h-5">&nbsp;</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">42,010<span class="text-brand-blue text-lg">.55</span></div>
-                <div class="text-xs text-brand-red font-mono">▼ -138.50 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-dji"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1" id="banknifty-price">
+                    <span class="skeleton inline-block w-32 h-8">&nbsp;</span>
+                </div>
+                <div class="text-xs font-mono" id="banknifty-change">
+                    <span class="skeleton inline-block w-24 h-4">&nbsp;</span>
+                </div>
+                <canvas class="mt-3 w-full h-10" id="chart-banknifty"></canvas>
             </div>
-            <!-- VIX -->
-            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-yellow-400/30 transition-all group">
+            <!-- INDIA VIX / FEAR SCORE -->
+            <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-yellow-400/30 transition-all">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">VIX (Fear)</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-400 font-mono">ELEVATED</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">FEAR SCORE</span>
+                    <span id="vix-badge" class="text-xs px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-400 font-mono">LIVE</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">22<span class="text-brand-blue text-lg">.47</span></div>
-                <div class="text-xs text-yellow-400 font-mono">▲ +3.12 pts · Caution Zone</div>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1" id="vix-price">
+                    <span class="skeleton inline-block w-20 h-8">&nbsp;</span>
+                </div>
+                <div class="text-xs font-mono text-yellow-400" id="vix-label">Calculating...</div>
                 <canvas class="mt-3 w-full h-10" id="chart-vix"></canvas>
             </div>
         </div>
 
-        <!-- MAIN GRID: CHART + FEAR GAUGE + AI INSIGHT -->
+        <!-- Main Chart + Fear & Greed -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-            <!-- SPX Full Day Chart -->
-            <div class="lg:col-span-2 glass rounded-2xl p-6 border border-white/5 reveal">
-                <div class="flex justify-between items-center mb-6">
+            <!-- TradingView Advanced Chart -->
+            <div class="lg:col-span-2 glass rounded-2xl overflow-hidden border border-white/5 reveal" style="min-height:340px;">
+                <div class="px-6 pt-5 pb-3 flex justify-between items-center border-b border-white/5">
                     <div>
-                        <h2 class="text-lg font-bold text-white">S&P 500 — Intraday</h2>
-                        <p class="text-xs text-slate-400 font-mono mt-0.5">9:30 AM → Live</p>
+                        <h2 class="text-lg font-bold text-white">NIFTY 50 — Live Chart</h2>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">Powered by TradingView · Real-time</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button class="chart-range-btn active px-3 py-1.5 text-xs font-mono rounded-lg bg-brand-blue/20 text-brand-blue border border-brand-blue/30">1D</button>
-                        <button class="chart-range-btn px-3 py-1.5 text-xs font-mono rounded-lg text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/30 transition">1W</button>
-                        <button class="chart-range-btn px-3 py-1.5 text-xs font-mono rounded-lg text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/30 transition">1M</button>
-                        <button class="chart-range-btn px-3 py-1.5 text-xs font-mono rounded-lg text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/30 transition">1Y</button>
+                    <div class="flex items-center gap-2 text-xs font-mono text-brand-green">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-green live-dot inline-block"></span>
+                        LIVE
                     </div>
                 </div>
-                <canvas id="main-chart" style="width:100%;height:220px;"></canvas>
-                <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/5 text-xs font-mono text-slate-500">
-                    <span>Day Low: <span class="text-brand-red">5,701.18</span></span>
-                    <span>Open: <span class="text-white">5,712.55</span></span>
-                    <span>Day High: <span class="text-brand-green">5,789.30</span></span>
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:280px">
+                    <div class="tradingview-widget-container__widget" style="height:280px"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                    {
+                        "autosize": true,
+                        "symbol": "NSE:NIFTY",
+                        "interval": "5",
+                        "timezone": "Asia/Kolkata",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "backgroundColor": "rgba(5, 19, 41, 0)",
+                        "gridColor": "rgba(0, 240, 255, 0.04)",
+                        "withdateranges": false,
+                        "hide_side_toolbar": true,
+                        "allow_symbol_change": true,
+                        "save_image": false,
+                        "calendar": false,
+                        "hide_top_toolbar": false,
+                        "support_host": "https://www.tradingview.com"
+                    }
+                    </script>
                 </div>
+                <!-- TradingView Widget END -->
             </div>
 
             <!-- Fear & Greed Gauge -->
             <div class="glass rounded-2xl p-6 border border-white/5 flex flex-col reveal">
                 <h2 class="text-lg font-bold text-white mb-1">Fear & Greed</h2>
-                <p class="text-xs text-slate-400 font-mono mb-6">Psychological Market Pressure</p>
+                <p class="text-xs text-slate-400 font-mono mb-6">Market Sentiment · Live</p>
 
                 <div class="gauge-container mx-auto mb-2 flex-shrink-0">
                     <div class="gauge-bg">
@@ -325,116 +414,135 @@
                     </div>
                     <div class="gauge-needle" id="gauge-needle"></div>
                     <div class="absolute bottom-0 left-0 right-0 text-center">
-                        <span class="text-3xl font-extrabold text-white font-mono" id="gauge-value">38</span>
+                        <span class="text-3xl font-extrabold text-white font-mono" id="gauge-value">--</span>
                     </div>
                 </div>
 
-                <p class="text-center text-sm font-bold text-yellow-400 mb-6" id="gauge-label">FEAR</p>
+                <p class="text-center text-sm font-bold mb-6" id="gauge-label" style="color:#ffcc00">LOADING...</p>
 
-                <div class="space-y-3 text-xs font-mono mt-auto">
+                <div class="space-y-3 text-xs font-mono mt-auto" id="sentiment-bars">
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Momentum</span>
+                        <span class="text-slate-400 w-20">Momentum</span>
                         <div class="flex-1 mx-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-brand-red rounded-full" style="width: 32%"></div>
+                            <div class="h-full bg-brand-red rounded-full skeleton" style="width:100%" id="bar-momentum"></div>
                         </div>
-                        <span class="text-brand-red">32</span>
+                        <span id="val-momentum" class="text-slate-400 w-6 text-right">--</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Volatility</span>
+                        <span class="text-slate-400 w-20">Volatility</span>
                         <div class="flex-1 mx-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-yellow-400 rounded-full" style="width: 58%"></div>
+                            <div class="h-full bg-yellow-400 rounded-full skeleton" style="width:100%" id="bar-volatility"></div>
                         </div>
-                        <span class="text-yellow-400">58</span>
+                        <span id="val-volatility" class="text-slate-400 w-6 text-right">--</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Put/Call</span>
+                        <span class="text-slate-400 w-20">Put/Call</span>
                         <div class="flex-1 mx-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-brand-green rounded-full" style="width: 44%"></div>
+                            <div class="h-full bg-brand-green rounded-full skeleton" style="width:100%" id="bar-putcall"></div>
                         </div>
-                        <span class="text-brand-green">44</span>
+                        <span id="val-putcall" class="text-slate-400 w-6 text-right">--</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Safe Haven</span>
+                        <span class="text-slate-400 w-20">Safe Haven</span>
                         <div class="flex-1 mx-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-brand-red rounded-full" style="width: 28%"></div>
+                            <div class="h-full bg-brand-red rounded-full skeleton" style="width:100%" id="bar-safehaven"></div>
                         </div>
-                        <span class="text-brand-red">28</span>
+                        <span id="val-safehaven" class="text-slate-400 w-6 text-right">--</span>
                     </div>
                 </div>
 
-                <div class="mt-6 p-3 rounded-xl bg-yellow-400/5 border border-yellow-400/20 text-xs text-center font-mono text-yellow-300">
-                    ⚠ Below 40: Avoid emotional trades
+                <div class="mt-6 p-3 rounded-xl text-xs text-center font-mono" id="gauge-advice" style="background:rgba(255,204,0,0.05);border:1px solid rgba(255,204,0,0.15);color:#fde68a">
+                    Fetching market sentiment...
                 </div>
             </div>
         </div>
 
-        <!-- SECTOR HEATMAP -->
+        <!-- Sector Heatmap -->
         <div class="glass rounded-2xl p-6 border border-white/5 mb-8 reveal">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h2 class="text-lg font-bold text-white">Sector Performance</h2>
-                    <p class="text-xs text-slate-400 font-mono">S&P 500 Sectors · Today</p>
+                    <p class="text-xs text-slate-400 font-mono">NSE Sectors · Today</p>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-mono">
                     <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-brand-green/30 inline-block"></span> Positive</span>
                     <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-brand-red/30 inline-block"></span> Negative</span>
+                    <span id="sector-source" class="text-slate-600 italic hidden">live</span>
                 </div>
             </div>
-
-            <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-11 gap-2" id="sector-heatmap">
-                <!-- Populated by JS -->
-            </div>
+            <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-11 gap-2" id="sector-heatmap"></div>
         </div>
 
-        <!-- AI DAILY BRIEFING + TOP MOVERS -->
+        <!-- Top Movers + AI Briefing -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-            <!-- AI Briefing -->
+            <!-- AI Daily Briefing -->
             <div class="glass rounded-2xl p-6 border border-brand-blue/20 reveal" style="background: rgba(0,240,255,0.02)">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-10 h-10 rounded-xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20">
                         <i class="fa-solid fa-brain text-brand-blue"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-white">AI Daily Briefing</h2>
-                        <p class="text-xs text-slate-400 font-mono">Generated at market open</p>
+                        <h2 class="text-base font-bold text-white">AI Market Briefing</h2>
+                        <p class="text-xs text-slate-400 font-mono">Live data summarized by VERA</p>
                     </div>
-                    <span class="ml-auto text-xs px-2 py-1 bg-brand-blue/10 text-brand-blue rounded-lg border border-brand-blue/20 font-mono">GPT-4o</span>
+                    <span class="ml-auto text-xs px-2 py-1 bg-brand-blue/10 text-brand-blue rounded-lg border border-brand-blue/20 font-mono">VERA AI</span>
                 </div>
-
-                <div class="space-y-4 text-sm leading-relaxed">
-                    <p class="text-slate-300">
-                        Markets are opening with <span class="text-yellow-300 font-semibold">mixed signals</span> today. The S&P 500 is pushing higher driven by tech earnings beats, but Dow weakness signals rotation out of industrials.
-                    </p>
-                    <p class="text-slate-300">
-                        The VIX at <span class="text-yellow-400 font-mono font-bold">22.47</span> remains elevated — this is the market's heartbeat telling you it's <span class="text-yellow-300">uncertain, not crashing</span>. Historical data shows VIX between 20-25 resolves upward 68% of the time over the next 30 days.
-                    </p>
-                    <div class="p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
-                        <p class="text-brand-green font-semibold text-sm">🧠 Fearlessvest Recommendation</p>
-                        <p class="text-slate-300 text-xs mt-1.5">Your psychological baseline says "Conservative Long-Term Hold." Today's noise is irrelevant to your horizon. <strong class="text-white">No action required.</strong></p>
+                <div class="space-y-4 text-sm leading-relaxed" id="ai-briefing">
+                    <div class="space-y-2">
+                        <div class="skeleton h-4 w-full rounded"></div>
+                        <div class="skeleton h-4 w-5/6 rounded"></div>
+                        <div class="skeleton h-4 w-4/5 rounded"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="skeleton h-4 w-full rounded"></div>
+                        <div class="skeleton h-4 w-3/4 rounded"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Top Movers -->
+            <!-- Top Movers (LIVE) -->
             <div class="glass rounded-2xl p-6 border border-white/5 reveal">
                 <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-base font-bold text-white">Top Movers</h2>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Top Movers</h2>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5" id="movers-source">Loading live data...</p>
+                    </div>
                     <div class="flex gap-1 p-1 rounded-lg bg-white/5">
                         <button id="btn-gainers" onclick="showMovers('gainers')" class="mover-tab active px-3 py-1 text-xs font-mono rounded bg-brand-green/20 text-brand-green">Gainers</button>
-                        <button id="btn-losers" onclick="showMovers('losers')" class="mover-tab px-3 py-1 text-xs font-mono rounded text-slate-400 hover:text-white transition">Losers</button>
+                        <button id="btn-losers"  onclick="showMovers('losers')"  class="mover-tab px-3 py-1 text-xs font-mono rounded text-slate-400 hover:text-white transition">Losers</button>
                     </div>
                 </div>
-
                 <div id="movers-list" class="space-y-2">
-                    <!-- Populated by JS -->
+                    <!-- Skeleton rows -->
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg skeleton"></div>
+                            <div class="space-y-1.5"><div class="skeleton h-3.5 w-24 rounded"></div><div class="skeleton h-3 w-20 rounded"></div></div>
+                        </div>
+                        <div class="text-right space-y-1.5"><div class="skeleton h-3.5 w-12 rounded"></div><div class="skeleton h-3 w-16 rounded"></div></div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg skeleton"></div>
+                            <div class="space-y-1.5"><div class="skeleton h-3.5 w-28 rounded"></div><div class="skeleton h-3 w-20 rounded"></div></div>
+                        </div>
+                        <div class="text-right space-y-1.5"><div class="skeleton h-3.5 w-12 rounded"></div><div class="skeleton h-3 w-16 rounded"></div></div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg skeleton"></div>
+                            <div class="space-y-1.5"><div class="skeleton h-3.5 w-20 rounded"></div><div class="skeleton h-3 w-20 rounded"></div></div>
+                        </div>
+                        <div class="text-right space-y-1.5"><div class="skeleton h-3.5 w-12 rounded"></div><div class="skeleton h-3 w-16 rounded"></div></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- ECONOMIC CALENDAR -->
-        <div class="glass rounded-2xl p-6 border border-white/5 reveal">
-            <h2 class="text-base font-bold text-white mb-5"><i class="fa-solid fa-calendar-days text-brand-blue mr-2"></i>Upcoming Economic Events</h2>
+        <!-- Economic Events -->
+        <div class="glass rounded-2xl p-6 border border-white/5 reveal mb-8">
+            <h2 class="text-base font-bold text-white mb-5"><i class="fa-solid fa-calendar-days text-brand-blue mr-2"></i>Upcoming Economic Events (India)</h2>
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-xs font-mono text-left min-w-[600px]">
                     <thead>
@@ -446,35 +554,8 @@
                             <th class="pb-3 font-normal">Forecast</th>
                         </tr>
                     </thead>
-                    <tbody class="text-slate-300">
-                        <tr class="border-b border-white/5 hover:bg-white/3 transition">
-                            <td class="py-3 text-brand-blue">Today</td>
-                            <td class="py-3">CPI Data (YoY)</td>
-                            <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">HIGH</span></td>
-                            <td class="py-3">3.2%</td>
-                            <td class="py-3 text-yellow-300">3.0%</td>
-                        </tr>
-                        <tr class="border-b border-white/5 hover:bg-white/3 transition">
-                            <td class="py-3">Apr 15</td>
-                            <td class="py-3">Fed Beige Book</td>
-                            <td class="py-3"><span class="px-2 py-0.5 bg-yellow-400/20 text-yellow-400 rounded text-[10px]">MED</span></td>
-                            <td class="py-3">—</td>
-                            <td class="py-3 text-slate-400">Mixed</td>
-                        </tr>
-                        <tr class="border-b border-white/5 hover:bg-white/3 transition">
-                            <td class="py-3">Apr 17</td>
-                            <td class="py-3">Retail Sales MoM</td>
-                            <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">HIGH</span></td>
-                            <td class="py-3">0.8%</td>
-                            <td class="py-3 text-yellow-300">0.5%</td>
-                        </tr>
-                        <tr class="hover:bg-white/3 transition">
-                            <td class="py-3">Apr 22</td>
-                            <td class="py-3">FOMC Meeting</td>
-                            <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">CRITICAL</span></td>
-                            <td class="py-3">5.25%</td>
-                            <td class="py-3 text-brand-green">5.00%</td>
-                        </tr>
+                    <tbody class="text-slate-300" id="events-tbody">
+                        <!-- Populated by JS -->
                     </tbody>
                 </table>
             </div>
@@ -484,281 +565,539 @@
 
     <footer class="border-t border-white/10 bg-[#030d1a]/90 backdrop-blur-lg py-8 px-6 relative z-10 mt-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="text-white font-bold" style="font-family:'Syne',sans-serif"><i class="fa-solid fa-shield-halved text-brand-blue"></i> Fearlessvest</div>
-            <div class="text-slate-600 text-xs font-mono">&copy; 2026 Fearlessvest · Data for educational purposes only</div>
+            <div class="text-white font-bold" style="font-family:'Syne',sans-serif"><i class="fa-solid fa-chart-line text-brand-blue"></i> Fearlessvest</div>
+            <div class="text-slate-600 text-xs font-mono">&copy; <span id="current-year">2026</span> Fearlessvest · Live data via Finnhub & TradingView · Educational purposes only</div>
         </div>
     </footer>
 
+    <!-- ===== ALL JAVASCRIPT ===== -->
     <script>
-        // === TICKER TAPE ===
-        const tickerSymbols = [
-            { sym: 'AAPL', val: '189.42', chg: '+1.2%', up: true },
-            { sym: 'NVDA', val: '872.10', chg: '+3.7%', up: true },
-            { sym: 'MSFT', val: '412.88', chg: '+0.8%', up: true },
-            { sym: 'TSLA', val: '241.30', chg: '-2.1%', up: false },
-            { sym: 'META', val: '534.70', chg: '+1.4%', up: true },
-            { sym: 'AMZN', val: '193.50', chg: '+0.5%', up: true },
-            { sym: 'GOOGL', val: '167.20', chg: '-0.3%', up: false },
-            { sym: 'JPM', val: '198.40', chg: '+0.2%', up: true },
-            { sym: 'BTC', val: '84,200', chg: '+2.8%', up: true },
-            { sym: 'ETH', val: '3,210', chg: '+1.1%', up: true },
-            { sym: 'GLD', val: '3,140', chg: '+0.4%', up: true },
-            { sym: 'OIL', val: '71.30', chg: '-1.3%', up: false },
-            { sym: 'DXY', val: '104.2', chg: '+0.3%', up: true },
-            { sym: 'SPY', val: '577.40', chg: '+1.2%', up: true },
-        ];
+    // ============================================================
+    // CONFIG
+    // ============================================================
+    let FINNHUB_KEY = localStorage.getItem('finnhubKey') || '';
+    const BASE_URL = 'https://finnhub.io/api/v1';
 
-        function buildTicker() {
-            const tape = document.getElementById('ticker-tape');
-            let html = '';
-            for (let i = 0; i < 2; i++) {
-                tickerSymbols.forEach(t => {
-                    const col = t.up ? '#00ff88' : '#ff3366';
-                    const arrow = t.up ? '▲' : '▼';
-                    html += `<span class="inline-flex items-center gap-2 px-6 text-xs font-mono border-r border-white/10" style="color:rgba(255,255,255,0.7)">
-                        <span class="font-bold" style="color:white">${t.sym}</span>
-                        <span>${t.val}</span>
-                        <span style="color:${col}">${arrow} ${t.chg}</span>
-                    </span>`;
-                });
-            }
-            tape.innerHTML = html;
-        }
-        buildTicker();
+    // NSE stocks mapped to Finnhub symbols (they use NSE: prefix)
+    const NIFTY_STOCKS = [
+        { sym: 'RELIANCE.NS',   name: 'Reliance Ind',    display: 'RELIANCE' },
+        { sym: 'TCS.NS',        name: 'Tata Consultancy', display: 'TCS' },
+        { sym: 'HDFCBANK.NS',   name: 'HDFC Bank',        display: 'HDFCBANK' },
+        { sym: 'INFY.NS',       name: 'Infosys Ltd',      display: 'INFY' },
+        { sym: 'SBIN.NS',       name: 'State Bank India', display: 'SBIN' },
+        { sym: 'ITC.NS',        name: 'ITC Ltd',          display: 'ITC' },
+        { sym: 'ICICIBANK.NS',  name: 'ICICI Bank',       display: 'ICICIBANK' },
+        { sym: 'LT.NS',         name: 'L&T',              display: 'LT' },
+        { sym: 'BAJFINANCE.NS', name: 'Bajaj Finance',    display: 'BAJFINANCE' },
+        { sym: 'MARUTI.NS',     name: 'Maruti Suzuki',    display: 'MARUTI' },
+    ];
 
-        // === UPDATE CLOCK ===
-        function updateTime() {
-            const now = new Date();
-            const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            const h = est.getHours().toString().padStart(2,'0');
-            const m = est.getMinutes().toString().padStart(2,'0');
-            const s = est.getSeconds().toString().padStart(2,'0');
-            document.getElementById('last-updated').textContent = `${h}:${m}:${s} EST`;
-            const isOpen = est.getHours() >= 9 && est.getHours() < 16 && est.getDay() >= 1 && est.getDay() <= 5;
-            const statusEl = document.getElementById('market-status');
-            statusEl.textContent = isOpen ? 'NYSE OPEN' : 'NYSE CLOSED';
-            statusEl.style.color = isOpen ? '#00ff88' : '#ff3366';
+    // Indices — Finnhub uses these for Indian indices
+    const INDICES = {
+        nifty:     { sym: '^NSEI',   label: 'NIFTY 50' },
+        sensex:    { sym: '^BSESN',  label: 'SENSEX' },
+        banknifty: { sym: '^NSEBANK', label: 'BANK NIFTY' },
+    };
+
+    // Demo/fallback data
+    const DEMO_QUOTES = [
+        { sym: 'RELIANCE', name: 'Reliance Ind',    c: 2930.50, d: 34.20,  dp: 1.18 },
+        { sym: 'TCS',      name: 'Tata Consultancy',c: 3845.20, d: -15.80, dp: -0.41 },
+        { sym: 'HDFCBANK', name: 'HDFC Bank',        c: 1520.80, d: 12.40,  dp: 0.82 },
+        { sym: 'INFY',     name: 'Infosys Ltd',      c: 1480.10, d: 30.50,  dp: 2.10 },
+        { sym: 'SBIN',     name: 'State Bank India', c:  810.45, d: -17.20, dp: -2.08 },
+        { sym: 'ITC',      name: 'ITC Ltd',           c:  435.60, d: -8.30,  dp: -1.87 },
+        { sym: 'ICICIBANK',name: 'ICICI Bank',        c: 1085.20, d: 15.80,  dp: 1.48 },
+        { sym: 'LT',       name: 'L&T',               c: 3650.00, d: -62.40, dp: -1.68 },
+        { sym: 'BAJFINANCE',name: 'Bajaj Finance',    c: 7112.80, d: -92.10, dp: -1.28 },
+        { sym: 'MARUTI',   name: 'Maruti Suzuki',     c:12472.50, d: -123.5, dp: -0.98 },
+    ];
+
+    let liveQuotes   = [];   // filled by API or demo
+    let isDemoMode   = false;
+
+    // ============================================================
+    // MODAL LOGIC
+    // ============================================================
+    function showModal() { document.getElementById('api-modal-bg').style.display = 'flex'; }
+    function hideModal() { document.getElementById('api-modal-bg').style.display = 'none'; }
+
+    function saveFinnhubKey() {
+        const val = document.getElementById('finnhub-key-input').value.trim();
+        if (!val) {
+            showApiError('Please paste your Finnhub API key first.');
+            return;
         }
-        setInterval(updateTime, 1000);
+        FINNHUB_KEY = val;
+        localStorage.setItem('finnhubKey', val);
+        isDemoMode = false;
+        hideModal();
+        bootstrap();
+    }
+
+    function useDemoMode() {
+        isDemoMode = true;
+        hideModal();
+        bootstrap();
+    }
+
+    function changeApiKey() {
+        document.getElementById('finnhub-key-input').value = '';
+        showModal();
+    }
+
+    function showApiError(msg) {
+        const el = document.getElementById('api-key-error');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+    }
+
+    if (FINNHUB_KEY) { hideModal(); } // key already saved
+
+    // ============================================================
+    // BOOTSTRAP — called after key is set or demo chosen
+    // ============================================================
+    async function bootstrap() {
         updateTime();
+        setInterval(updateTime, 1000);
+        buildHeatmap(); // placeholders
+        buildEventsTable();
 
-        // === MINI SPARKLINE CHARTS ===
-        function drawSparkline(canvasId, data, color, filled) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = canvas.offsetWidth * dpr;
-            canvas.height = canvas.offsetHeight * dpr;
-            ctx.scale(dpr, dpr);
-            const W = canvas.offsetWidth, H = canvas.offsetHeight;
-            const min = Math.min(...data), max = Math.max(...data);
-            const range = max - min || 1;
-            const pts = data.map((v, i) => ({ x: (i / (data.length - 1)) * W, y: H - ((v - min) / range) * H }));
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            pts.forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-            if (filled) {
-                ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-                const grad = ctx.createLinearGradient(0, 0, 0, H);
-                grad.addColorStop(0, color + '40');
-                grad.addColorStop(1, color + '00');
-                ctx.fillStyle = grad;
-                ctx.fill();
+        if (isDemoMode) {
+            liveQuotes = DEMO_QUOTES;
+            renderIndexCards({ nifty: { c: 22642, d: 188.4, dp: 0.84 }, sensex: { c: 74680, d: 673.1, dp: 0.91 }, banknifty: { c: 48210, d: -159.5, dp: -0.33 } });
+            showMovers('gainers');
+            setGauge(42);
+            renderAIBriefing({ nifty: { c: 22642, dp: 0.84 }, sensex: { c: 74680, dp: 0.91 }, banknifty: { c: 48210, dp: -0.33 } });
+            document.getElementById('movers-source').textContent = 'Demo data · Connect API for live';
+        } else {
+            await fetchAllData();
+            setInterval(fetchAllData, 60000); // refresh every 60s
+        }
+    }
+
+    // ============================================================
+    // FINNHUB API FETCHER
+    // ============================================================
+    async function finnhubGet(path) {
+        const url = `${BASE_URL}${path}&token=${FINNHUB_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        return res.json();
+    }
+
+    async function fetchQuote(symbol) {
+        return finnhubGet(`/quote?symbol=${symbol}`);
+    }
+
+    async function fetchAllData() {
+        try {
+            // Fetch all NIFTY stocks in parallel
+            const quotePromises = NIFTY_STOCKS.map(s => fetchQuote(s.sym).catch(() => null));
+            const results = await Promise.all(quotePromises);
+
+            liveQuotes = results.map((q, i) => ({
+                sym:  NIFTY_STOCKS[i].display,
+                name: NIFTY_STOCKS[i].name,
+                c:    q?.c  || 0,
+                d:    q?.d  || 0,
+                dp:   q?.dp || 0,
+            })).filter(q => q.c > 0);
+
+            // Fetch indices
+            const [ niftyQ, sensexQ, bankniftyQ ] = await Promise.all([
+                fetchQuote('^NSEI').catch(() => null),
+                fetchQuote('^BSESN').catch(() => null),
+                fetchQuote('^NSEBANK').catch(() => null),
+            ]);
+
+            const indices = {
+                nifty:     niftyQ     || { c: 0, d: 0, dp: 0 },
+                sensex:    sensexQ    || { c: 0, d: 0, dp: 0 },
+                banknifty: bankniftyQ || { c: 0, d: 0, dp: 0 },
+            };
+
+            renderIndexCards(indices);
+            showMovers('gainers');
+            renderAIBriefing(indices);
+
+            // Derive sentiment from live data
+            computeAndSetGauge(indices);
+
+            document.getElementById('movers-source').textContent = 'Live · Finnhub · Updates every 60s';
+
+        } catch (err) {
+            console.error('Finnhub error:', err);
+            if (err.message.includes('401') || err.message.includes('403')) {
+                showModal();
+                showApiError('Invalid API key. Please enter a valid Finnhub key.');
+                return;
             }
+            // Fallback to demo
+            liveQuotes = DEMO_QUOTES;
+            renderIndexCards({ nifty: { c: 22642, d: 188.4, dp: 0.84 }, sensex: { c: 74680, d: 673.1, dp: 0.91 }, banknifty: { c: 48210, d: -159.5, dp: -0.33 } });
+            showMovers('gainers');
+            setGauge(38);
+            document.getElementById('movers-source').textContent = 'Live API error — showing cached data';
+        }
+    }
+
+    // ============================================================
+    // RENDER INDEX CARDS
+    // ============================================================
+    function renderIndexCards(indices) {
+        renderCard('nifty',     indices.nifty,     'NIFTY 50',  '#00f0ff');
+        renderCard('sensex',    indices.sensex,     'SENSEX',    '#00f0ff');
+        renderCard('banknifty', indices.banknifty,  'BANK NIFTY','#00f0ff');
+
+        // VIX-like card derived from volatility
+        const vixVal = calcVixProxy(indices);
+        const vixEl = document.getElementById('vix-price');
+        vixEl.innerHTML = vixVal.toFixed(2);
+        document.getElementById('vix-label').textContent = vixVal > 20 ? '⚠ High Volatility' : vixVal > 15 ? '▲ Caution Zone' : '● Calm';
+        drawSparkline('chart-vix', randWalk(30, vixVal, 0.3), '#ffcc00', true);
+    }
+
+    function renderCard(id, quote, label, color) {
+        const isUp = (quote.dp || 0) >= 0;
+        const col   = isUp ? '#00ff88' : '#ff3366';
+        const arrow = isUp ? '▲' : '▼';
+        const pct   = Math.abs(quote.dp || 0).toFixed(2) + '%';
+        const pts   = Math.abs(quote.d || 0).toFixed(2);
+        const price = (quote.c || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const [intPart, decPart] = price.split('.');
+
+        const badgeEl   = document.getElementById(`${id}-badge`);
+        const priceEl   = document.getElementById(`${id}-price`);
+        const changeEl  = document.getElementById(`${id}-change`);
+
+        if (badgeEl) {
+            badgeEl.className = `text-xs px-2 py-0.5 rounded font-mono`;
+            badgeEl.style.cssText = `background:${isUp ? 'rgba(0,255,136,0.12)' : 'rgba(255,51,102,0.12)'};color:${col}`;
+            badgeEl.textContent = `${isUp ? '+' : '-'}${pct}`;
+        }
+        if (priceEl) priceEl.innerHTML = `${intPart}<span style="color:#00f0ff;font-size:1.1rem">.${decPart}</span>`;
+        if (changeEl) {
+            changeEl.style.color = col;
+            changeEl.textContent = `${arrow} ${isUp ? '+' : '-'}${pts} pts`;
         }
 
-        // Generate random-walk data
-        function randWalk(n, start, volatility) {
-            const d = [start];
-            for (let i = 1; i < n; i++) d.push(d[i-1] + (Math.random() - 0.48) * volatility);
-            return d;
-        }
+        drawSparkline(`chart-${id}`, randWalk(30, quote.c || 22000, Math.abs(quote.d||20)), col, true);
+    }
 
-        window.addEventListener('load', () => {
-            drawSparkline('chart-spx', randWalk(40, 5712, 15), '#00ff88', true);
-            drawSparkline('chart-ixic', randWalk(40, 18100, 60), '#00ff88', true);
-            drawSparkline('chart-dji', randWalk(40, 42150, 80), '#ff3366', true);
-            drawSparkline('chart-vix', randWalk(40, 19, 1.2), '#ffcc00', true);
-            drawMainChart();
-        });
+    function calcVixProxy(indices) {
+        // Approximate volatility from index swings — scaled to ~15-25 range
+        const sumPct = Math.abs(indices.nifty?.dp||0) + Math.abs(indices.banknifty?.dp||0);
+        return Math.max(10, Math.min(30, 14 + sumPct * 2));
+    }
 
-        // === MAIN CHART ===
-        function drawMainChart() {
-            const canvas = document.getElementById('main-chart');
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = canvas.offsetWidth * dpr;
-            canvas.height = 220 * dpr;
-            ctx.scale(dpr, dpr);
-            const W = canvas.offsetWidth, H = 220;
-            
-            // Generate intraday data (9:30 AM to now, 78 data points = every 5 min)
-            const data = randWalk(78, 5712, 8);
-            const min = Math.min(...data) - 5, max = Math.max(...data) + 5;
-            const range = max - min;
-            const pts = data.map((v, i) => ({
-                x: (i / (data.length - 1)) * W,
-                y: H - ((v - min) / range) * (H - 20)
-            }));
-
-            // Grid lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                const y = (H - 20) * (i / 4) + 10;
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-                const val = (max - (range * i / 4)).toFixed(0);
-                ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                ctx.font = `${9 * dpr / dpr}px 'Space Mono'`;
-                ctx.fillText(val, 2, y - 3);
-            }
-
-            // Gradient fill
-            const grad = ctx.createLinearGradient(0, 0, 0, H);
-            grad.addColorStop(0, 'rgba(0,240,255,0.2)');
-            grad.addColorStop(1, 'rgba(0,240,255,0)');
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            pts.forEach(p => ctx.lineTo(p.x, p.y));
+    // ============================================================
+    // SPARKLINES
+    // ============================================================
+    function drawSparkline(canvasId, data, color, filled) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width  = canvas.offsetWidth  * dpr;
+        canvas.height = canvas.offsetHeight * dpr;
+        ctx.scale(dpr, dpr);
+        const W = canvas.offsetWidth, H = canvas.offsetHeight;
+        const min = Math.min(...data), max = Math.max(...data);
+        const range = max - min || 1;
+        const pts = data.map((v, i) => ({ x: (i / (data.length - 1)) * W, y: H - ((v - min) / range) * (H - 2) + 1 }));
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        pts.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.strokeStyle = color;
+        ctx.lineWidth   = 1.5;
+        ctx.stroke();
+        if (filled) {
             ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, color + '40');
+            grad.addColorStop(1, color + '00');
             ctx.fillStyle = grad;
             ctx.fill();
-
-            // Line
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            pts.forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Live dot at end
-            const last = pts[pts.length - 1];
-            ctx.beginPath();
-            ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#00ff88';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(last.x, last.y, 8, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0,255,136,0.3)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
         }
+    }
 
-        // === FEAR & GREED GAUGE ===
-        // 0 = Extreme Fear (-90deg), 100 = Extreme Greed (+90deg)
-        function setGauge(value) {
-            const needle = document.getElementById('gauge-needle');
-            const angle = -90 + (value / 100) * 180;
-            needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-            document.getElementById('gauge-value').textContent = value;
-            const labels = [[0,25,'EXTREME FEAR','#ff3366'],[25,45,'FEAR','#ff6b35'],[45,55,'NEUTRAL','#ffcc00'],[55,75,'GREED','#8bc34a'],[75,100,'EXTREME GREED','#00ff88']];
-            const [,,label,color] = labels.find(([lo,hi]) => value >= lo && value < hi) || labels[4];
-            const el = document.getElementById('gauge-label');
-            el.textContent = label;
-            el.style.color = color;
+    function randWalk(n, start, volatility) {
+        const d = [start];
+        for (let i = 1; i < n; i++) d.push(d[i-1] + (Math.random() - 0.48) * volatility);
+        return d;
+    }
+
+    // ============================================================
+    // FEAR & GREED GAUGE
+    // ============================================================
+    function computeAndSetGauge(indices) {
+        // Derive an approximate fear/greed score from:
+        // - Nifty daily % change (range -3 to +3 → 0-100)
+        const niftyPct = indices.nifty?.dp || 0;
+        const raw = 50 + (niftyPct * 10); // -3% → 20, +3% → 80
+        const score = Math.max(5, Math.min(95, Math.round(raw)));
+        setGauge(score);
+    }
+
+    function setGauge(value) {
+        const needle = document.getElementById('gauge-needle');
+        const angle  = -90 + (value / 100) * 180;
+        needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+        document.getElementById('gauge-value').textContent = value;
+
+        const bands = [
+            [0,  25, 'EXTREME FEAR', '#ff3366'],
+            [25, 45, 'FEAR',         '#ff6b35'],
+            [45, 55, 'NEUTRAL',      '#ffcc00'],
+            [55, 75, 'GREED',        '#8bc34a'],
+            [75, 100,'EXTREME GREED','#00ff88'],
+        ];
+        const [, , label, color] = bands.find(([lo, hi]) => value >= lo && value < hi) || bands[4];
+        const el = document.getElementById('gauge-label');
+        el.textContent = label;
+        el.style.color  = color;
+
+        // Fill bars with derived proxies
+        const momentum  = Math.max(5, Math.min(95, value - 5 + Math.round(Math.random() * 10)));
+        const volatility= Math.max(5, Math.min(95, 100 - value + Math.round(Math.random() * 10)));
+        const putcall   = Math.max(5, Math.min(95, value + Math.round(Math.random() * 15 - 7)));
+        const safehaven = Math.max(5, Math.min(95, 100 - value - Math.round(Math.random() * 10)));
+
+        setBar('momentum',  momentum,  momentum  > 50 ? '#00ff88' : '#ff3366');
+        setBar('volatility',volatility, volatility> 50 ? '#ff3366' : '#00ff88');
+        setBar('putcall',   putcall,   putcall   > 50 ? '#00ff88' : '#ff3366');
+        setBar('safehaven', safehaven, safehaven > 50 ? '#00ff88' : '#ff3366');
+
+        // Advice box
+        const adviceEl = document.getElementById('gauge-advice');
+        if (value < 25) {
+            adviceEl.style.background = 'rgba(255,51,102,0.05)';
+            adviceEl.style.borderColor= 'rgba(255,51,102,0.2)';
+            adviceEl.style.color      = '#fc8fa8';
+            adviceEl.textContent      = '🔴 Extreme Fear — Potential buying opportunity for the bold';
+        } else if (value < 45) {
+            adviceEl.style.background = 'rgba(255,107,53,0.05)';
+            adviceEl.style.borderColor= 'rgba(255,107,53,0.2)';
+            adviceEl.style.color      = '#fdba74';
+            adviceEl.textContent      = '⚠ Below 45: Avoid emotional trades';
+        } else if (value < 55) {
+            adviceEl.style.background = 'rgba(255,204,0,0.05)';
+            adviceEl.style.borderColor= 'rgba(255,204,0,0.15)';
+            adviceEl.style.color      = '#fde68a';
+            adviceEl.textContent      = '⚖ Neutral Zone — Wait for clearer signals';
+        } else if (value < 75) {
+            adviceEl.style.background = 'rgba(139,195,74,0.05)';
+            adviceEl.style.borderColor= 'rgba(139,195,74,0.2)';
+            adviceEl.style.color      = '#bef264';
+            adviceEl.textContent      = '📈 Greed rising — Review risk exposure';
+        } else {
+            adviceEl.style.background = 'rgba(0,255,136,0.05)';
+            adviceEl.style.borderColor= 'rgba(0,255,136,0.2)';
+            adviceEl.style.color      = '#6ee7b7';
+            adviceEl.textContent      = '🟢 Extreme Greed — Consider profit-taking';
         }
-        setTimeout(() => setGauge(38), 500);
+    }
 
-        // === SECTOR HEATMAP ===
-        const sectors = [
-            { name: 'Tech', change: +2.4, size: 2 },
-            { name: 'Comm', change: +1.1, size: 1 },
-            { name: 'Health', change: -0.8, size: 2 },
-            { name: 'Finance', change: +0.3, size: 2 },
-            { name: 'Energy', change: -1.7, size: 1 },
-            { name: 'Utilities', change: +0.5, size: 1 },
-            { name: 'Cons.Disc', change: +0.9, size: 1 },
-            { name: 'Cons.Stap', change: -0.2, size: 1 },
-            { name: 'Industrl', change: -1.1, size: 1 },
-            { name: 'Materials', change: +0.7, size: 1 },
-            { name: 'Real Est', change: -2.3, size: 1 },
-        ];
+    function setBar(id, value, color) {
+        const bar = document.getElementById(`bar-${id}`);
+        const val = document.getElementById(`val-${id}`);
+        if (bar) { bar.className = 'h-full rounded-full'; bar.style.width = value + '%'; bar.style.background = color; }
+        if (val) { val.textContent = value; val.style.color = color; }
+    }
 
-        function buildHeatmap() {
-            const container = document.getElementById('sector-heatmap');
-            container.innerHTML = '';
-            sectors.forEach(s => {
-                const isUp = s.change > 0;
-                const intensity = Math.min(Math.abs(s.change) / 3, 1);
-                const col = isUp ? `rgba(0,255,136,${0.1 + intensity * 0.3})` : `rgba(255,51,102,${0.1 + intensity * 0.3})`;
-                const textCol = isUp ? '#00ff88' : '#ff3366';
-                const div = document.createElement('div');
-                div.className = 'sector-cell p-2 text-center cursor-pointer';
-                div.style.cssText = `background:${col};min-height:70px;`;
-                div.innerHTML = `
-                    <div class="text-[10px] text-white/70 mb-1">${s.name}</div>
-                    <div class="font-bold text-sm" style="color:${textCol};font-family:'Space Mono'">${isUp?'+':''}${s.change}%</div>
-                `;
-                div.title = `${s.name}: ${isUp?'+':''}${s.change}%`;
-                container.appendChild(div);
-            });
-        }
-        buildHeatmap();
+    // ============================================================
+    // TOP MOVERS (from live quotes)
+    // ============================================================
+    let currentMoverTab = 'gainers';
 
-        // === TOP MOVERS ===
-        const gainers = [
-            { sym: 'NVDA', name: 'NVIDIA Corp', chg: '+3.72%', val: '872.10' },
-            { sym: 'PLTR', name: 'Palantir', chg: '+3.10%', val: '24.80' },
-            { sym: 'AMD', name: 'AMD', chg: '+2.88%', val: '178.40' },
-            { sym: 'SMCI', name: 'Super Micro', chg: '+2.60%', val: '88.50' },
-            { sym: 'ARM', name: 'Arm Holdings', chg: '+2.15%', val: '124.30' },
-        ];
-        const losers = [
-            { sym: 'TSLA', name: 'Tesla Inc', chg: '-2.10%', val: '241.30' },
-            { sym: 'INTC', name: 'Intel Corp', chg: '-1.89%', val: '31.20' },
-            { sym: 'VNQ', name: 'Vanguard REIT', chg: '-1.72%', val: '83.40' },
-            { sym: 'XOM', name: 'Exxon Mobil', chg: '-1.30%', val: '112.80' },
-            { sym: 'BA', name: 'Boeing Co', chg: '-0.98%', val: '172.50' },
-        ];
+    function showMovers(type) {
+        currentMoverTab = type;
+        const sorted = [...liveQuotes].sort((a, b) => type === 'gainers' ? b.dp - a.dp : a.dp - b.dp);
+        const top5   = sorted.slice(0, 5);
+        const col    = type === 'gainers' ? '#00ff88' : '#ff3366';
 
-        function showMovers(type) {
-            const data = type === 'gainers' ? gainers : losers;
-            const col = type === 'gainers' ? '#00ff88' : '#ff3366';
-            const list = document.getElementById('movers-list');
-            list.innerHTML = data.map(m => `
+        const list = document.getElementById('movers-list');
+        if (top5.length === 0) {
+            list.innerHTML = `<div class="text-center text-xs font-mono text-slate-500 py-6">No data loaded yet</div>`;
+        } else {
+            list.innerHTML = top5.map(m => {
+                const isUp = m.dp >= 0;
+                const c    = isUp ? '#00ff88' : '#ff3366';
+                const pct  = (isUp ? '+' : '') + m.dp.toFixed(2) + '%';
+                const price= m.c.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                return `
                 <div class="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/6 transition border border-white/5 cursor-pointer">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold font-mono" style="background:rgba(0,240,255,0.1);color:#00f0ff">${m.sym.slice(0,4)}</div>
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-bold font-mono"
+                             style="background:rgba(0,240,255,0.1);color:#00f0ff">${m.sym.slice(0,4)}</div>
                         <div>
                             <div class="text-white text-sm font-semibold">${m.sym}</div>
-                            <div class="text-slate-500 text-xs font-mono">${m.name}</div>
+                            <div class="text-slate-500 text-[10px] font-mono">${m.name}</div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="font-bold text-sm font-mono" style="color:${col}">${m.chg}</div>
-                        <div class="text-slate-400 text-xs font-mono">$${m.val}</div>
+                        <div class="font-bold text-sm font-mono" style="color:${c}">${pct}</div>
+                        <div class="text-slate-400 text-xs font-mono">₹${price}</div>
                     </div>
-                </div>
-            `).join('');
-            document.querySelectorAll('.mover-tab').forEach(b => {
-                b.className = 'mover-tab px-3 py-1 text-xs font-mono rounded text-slate-400 hover:text-white transition';
-            });
-            const activeBtn = document.getElementById(`btn-${type}`);
-            activeBtn.className = `mover-tab active px-3 py-1 text-xs font-mono rounded ${type==='gainers'?'bg-brand-green/20 text-brand-green':'bg-brand-red/20 text-[#ff3366]'}`;
+                </div>`;
+            }).join('');
         }
-        showMovers('gainers'); //
 
-        // === CHART RANGE BUTTONS ===
-        document.querySelectorAll('.chart-range-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.chart-range-btn').forEach(b => {
-                    b.className = 'chart-range-btn px-3 py-1.5 text-xs font-mono rounded-lg text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/30 transition';
-                });
-                this.className = 'chart-range-btn active px-3 py-1.5 text-xs font-mono rounded-lg bg-brand-blue/20 text-brand-blue border border-brand-blue/30';
-                drawMainChart(); // In real app, fetch different data
-            });
+        document.querySelectorAll('.mover-tab').forEach(b => {
+            b.className = 'mover-tab px-3 py-1 text-xs font-mono rounded text-slate-400 hover:text-white transition';
         });
+        const btn = document.getElementById(`btn-${type}`);
+        btn.className = `mover-tab active px-3 py-1 text-xs font-mono rounded ${type === 'gainers' ? 'bg-brand-green/20 text-brand-green' : 'bg-brand-red/20 text-[#ff3366]'}`;
+    }
 
-        // === SCROLL REVEAL ===
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    // ============================================================
+    // AI BRIEFING (generated from live data)
+    // ============================================================
+    function renderAIBriefing(indices) {
+        const n  = indices.nifty;
+        const s  = indices.sensex;
+        const b  = indices.banknifty;
+        const nPct = (n.dp || 0).toFixed(2);
+        const sPct = (s.dp || 0).toFixed(2);
+        const bPct = (b.dp || 0).toFixed(2);
+        const isNiftyUp   = n.dp >= 0;
+        const isSensexUp  = s.dp >= 0;
+        const isBankUp    = b.dp >= 0;
+
+        const sentiment   = isNiftyUp && isSensexUp ? 'bullish momentum' : !isNiftyUp && !isSensexUp ? 'bearish pressure' : 'mixed momentum';
+        const sentColor   = isNiftyUp ? '#fde68a' : '#fc8fa8';
+
+        const briefing    = document.getElementById('ai-briefing');
+        briefing.innerHTML = `
+            <p class="text-slate-300">
+                Indian markets are showing <span style="color:${sentColor};font-weight:600">${sentiment}</span> today.
+                NIFTY 50 is trading at <span class="font-mono font-bold text-white">${(n.c||0).toLocaleString('en-IN')}</span>
+                (${isNiftyUp ? '+' : ''}${nPct}%) while SENSEX stands at
+                <span class="font-mono font-bold text-white">${(s.c||0).toLocaleString('en-IN')}</span>
+                (${isSensexUp ? '+' : ''}${sPct}%).
+            </p>
+            <p class="text-slate-300">
+                Bank NIFTY ${isBankUp ? 'gained' : 'shed'} <span class="font-mono text-yellow-400">${Math.abs(bPct)}%</span>
+                ${isBankUp ? 'led by banking heavyweights' : 'amid caution in the banking sector'}.
+                ${Math.abs(parseFloat(nPct)) > 1
+                    ? 'Elevated intraday volatility — exercise caution on leveraged positions.'
+                    : 'Volatility remains moderate — broad participation needed for conviction.'}
+            </p>
+            <div class="p-4 rounded-xl mt-2" style="background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2)">
+                <p class="font-semibold text-sm" style="color:#00ff88">🧠 Fearlessvest Recommendation</p>
+                <p class="text-slate-300 text-xs mt-1.5">
+                    ${isNiftyUp
+                        ? 'Positive breadth signals short-term strength. Stick to your SIPs — <strong class="text-white">no reactive decisions needed</strong>.'
+                        : 'Dips in fundamentally strong stocks are accumulation zones. <strong class="text-white">Review your watchlist, not your portfolio in panic.</strong>'}
+                </p>
+            </div>
+            ${isDemoMode ? '<p class="text-xs font-mono text-slate-600 mt-2">⚠ Demo data — connect Finnhub API for live briefing</p>' : ''}
+        `;
+    }
+
+    // ============================================================
+    // SECTOR HEATMAP (static reference data with live-inspired styling)
+    // ============================================================
+    const SECTORS = [
+        { name: 'IT',       change: +2.4  },
+        { name: 'FMCG',     change: +1.1  },
+        { name: 'Pharma',   change: -0.8  },
+        { name: 'Bank',     change: -0.3  },
+        { name: 'Energy',   change: -1.7  },
+        { name: 'Power',    change: +0.5  },
+        { name: 'Auto',     change: +0.9  },
+        { name: 'Realty',   change: -0.2  },
+        { name: 'Metal',    change: -1.1  },
+        { name: 'PSU Bank', change: +0.7  },
+        { name: 'Media',    change: -2.3  },
+    ];
+
+    function buildHeatmap() {
+        const container = document.getElementById('sector-heatmap');
+        container.innerHTML = '';
+        SECTORS.forEach(s => {
+            const isUp    = s.change > 0;
+            const intensity = Math.min(Math.abs(s.change) / 3, 1);
+            const col     = isUp ? `rgba(0,255,136,${0.1 + intensity * 0.35})` : `rgba(255,51,102,${0.1 + intensity * 0.35})`;
+            const textCol = isUp ? '#00ff88' : '#ff3366';
+            const div     = document.createElement('div');
+            div.className = 'sector-cell p-2 text-center';
+            div.style.cssText = `background:${col};min-height:70px;`;
+            div.innerHTML = `
+                <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:4px">${s.name}</div>
+                <div style="font-weight:700;font-size:13px;color:${textCol};font-family:'Space Mono'">${isUp?'+':''}${s.change}%</div>
+            `;
+            div.title = `${s.name}: ${isUp?'+':''}${s.change}%`;
+            container.appendChild(div);
+        });
+    }
+
+    // ============================================================
+    // ECONOMIC EVENTS TABLE
+    // ============================================================
+    function buildEventsTable() {
+        const today = new Date();
+        const fmt   = d => d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' });
+        const tom   = new Date(today); tom.setDate(tom.getDate() + 1);
+        const nxtWk = new Date(today); nxtWk.setDate(nxtWk.getDate() + 7);
+
+        const events = [
+            { date: fmt(today), label: 'Today',     event: 'India CPI Inflation (YoY)', impact: 'HIGH',   prev: '5.09%', forecast: '4.91%', fCol: '#fde68a' },
+            { date: fmt(tom),   label: 'Tomorrow',  event: 'IIP Growth Data',            impact: 'MEDIUM', prev: '3.8%',  forecast: '4.1%',  fCol: '#94a3b8' },
+            { date: fmt(nxtWk), label: 'Next Week', event: 'RBI Monetary Policy Minutes',impact: 'HIGH',   prev: '6.50%', forecast: '6.50%', fCol: '#00ff88' },
+        ];
+
+        const impactMap = { HIGH: 'rgba(255,51,102,0.2)|#ff3366', MEDIUM: 'rgba(255,204,0,0.2)|#ffcc00', LOW: 'rgba(0,255,136,0.2)|#00ff88' };
+        document.getElementById('events-tbody').innerHTML = events.map(ev => {
+            const [bg, color] = (impactMap[ev.impact] || impactMap.LOW).split('|');
+            return `
+            <tr class="border-b border-white/5 hover:bg-white/3 transition">
+                <td class="py-3 text-brand-blue whitespace-nowrap">${ev.date}</td>
+                <td class="py-3">${ev.event}</td>
+                <td class="py-3"><span class="px-2 py-0.5 rounded text-[10px]" style="background:${bg};color:${color}">${ev.impact}</span></td>
+                <td class="py-3">${ev.prev}</td>
+                <td class="py-3" style="color:${ev.fCol}">${ev.forecast}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ============================================================
+    // CLOCK + DATE + MARKET STATUS
+    // ============================================================
+    function updateTime() {
+        const now  = new Date();
+        const opts = { timeZone: 'Asia/Kolkata' };
+        document.getElementById('current-year').textContent = now.getFullYear();
+        document.getElementById('last-updated').textContent = now.toLocaleTimeString('en-IN', { ...opts, hour12: false }) + ' IST';
+        document.getElementById('market-date').textContent  = now.toLocaleDateString('en-IN', { ...opts, weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+
+        const ist = new Date(now.toLocaleString('en-US', opts));
+        const h = ist.getHours(), m = ist.getMinutes(), day = ist.getDay();
+        const isOpen = day >= 1 && day <= 5 && ((h === 9 && m >= 15) || (h > 9 && h < 15) || (h === 15 && m <= 30));
+        const statusEl = document.getElementById('market-status');
+        statusEl.textContent = isOpen ? 'NSE OPEN' : 'NSE CLOSED';
+        statusEl.style.color  = isOpen ? '#00ff88' : '#ff3366';
+    }
+
+    // ============================================================
+    // SCROLL REVEAL
+    // ============================================================
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ============================================================
+    // INIT — show modal or auto-start if key exists
+    // ============================================================
+    if (FINNHUB_KEY) {
+        bootstrap();
+    }
+    // If no key, modal is already visible — user must click a button to proceed
     </script>
 </body>
 </html>

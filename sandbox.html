@@ -353,9 +353,9 @@
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between px-6 pt-5 pb-2 gap-4 border-b border-white/5">
                 <div>
                     <div class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-1">Portfolio Value</div>
-                    <div class="value-display text-white" id="portfolio-value">$100,000.00</div>
+                    <div class="value-display text-white" id="portfolio-value">₹1,00,000.00</div>
                     <div class="flex items-center gap-3 mt-1">
-                        <span class="text-sm font-mono" id="pnl-display" style="color:#888">$0.00 (0.00%)</span>
+                        <span class="text-sm font-mono" id="pnl-display" style="color:#888">₹0.00 (0.00%)</span>
                         <span class="text-xs font-mono text-slate-500" id="sim-date-display">Jan 2007</span>
                     </div>
                 </div>
@@ -546,7 +546,87 @@
                 8: '"2.5 years of pain. This is a test of whether your thesis was real or just euphoria. Do you still believe?"',
                 10: '"The companies that survived (Amazon, Apple, Google) will define the next 20 years. The question is: did you hold?"'
             }
-        }
+        },
+        'harshad_mehta': {
+             label: 'HARSHAD MEHTA SCAM (1992)',
+  startVal: 100000,
+  months: ['Jan 91','Apr 91','Jul 91','Oct 91','Jan 92','Apr 92','Jul 92','Oct 92','Jan 93','Apr 93'],
+  returns: [0.12, 0.18, 0.22, 0.30, 0.35, -0.45, -0.25, -0.15, 0.05, 0.08],
+  events: {
+    1: "Harshad Mehta begins aggressive buying in stock market using bank funds.",
+    3: "Sensex rises तेजी से. Retail investors rush in.",
+    4: "ACC stock shoots abnormally high, signaling manipulation.",
+    5: "Scam exposed by journalist Sucheta Dalal.",
+    6: "Market crashes sharply. Panic selling begins.",
+    7: "Banks report missing funds. Liquidity crisis.",
+    8: "SEBI tightens regulations. Trust in market drops.",
+    10: "Slow recovery begins, but confidence takes years to rebuild."
+  },
+  whispers: {
+    2: "Everyone is making easy money. Donot  miss out!",
+    4: "This rise feels too good… but what if it keeps going?",
+    6: "Markets are crashing! Should you sell everything now?",
+    8: "Was this ever real growth or just manipulation?",
+    10: "Long-term investors slowly regain confidence."
+  }
+},
+
+
+ 
+'crypto_crash': {
+    label: 'CRYPTO MARKET CRASH (2021–2022)',
+  startVal: 100000,
+  months: ['Jan 21','Apr 21','Jul 21','Nov 21','Jan 22','May 22','Jun 22','Nov 22','Jan 23','Apr 23'],
+  returns: [0.25, 0.40, -0.30, 0.35, -0.20, -0.45, -0.25, -0.30, 0.10, 0.15],
+  events: {
+    1: "Bitcoin and altcoins surge. Massive retail participation begins.",
+    2: "Crypto becomes mainstream. Celebrities & influencers promote it.",
+    3: "China bans crypto mining. Market drops sharply.",
+    4: "Bitcoin hits all-time high near $69,000.",
+    5: "Interest rate hikes start. Risk assets begin to fall.",
+    6: "Terra (LUNA) collapse wipes out billions.",
+    7: "Celsius & other platforms freeze withdrawals.",
+    8: "FTX exchange collapses. Major trust breakdown.",
+    9: "Market stabilizes at lower levels.",
+    10: "Slow recovery begins. Long-term investors return."
+  },
+  whispers: {
+    1: "Crypto is the future. This is just the beginning!",
+    3: "Is this just a dip… or something bigger?",
+    4: "This time it is different. Prices will only go up.",
+    6: "Everything is collapsing. Get out before it's too late!",
+    8: "Can crypto even be trusted anymore?",
+    10: "Maybe this is the opportunity smart investors wait for."
+  }
+},
+
+'yes_bank_crisis': {
+    label: 'YES BANK CRISIS (2020)',
+  startVal: 100000,
+  months: ['Jan 19','Apr 19','Jul 19','Sep 19','Nov 19','Jan 20','Mar 20','Apr 20','Jul 20','Oct 20'],
+  returns: [0.05, -0.10, -0.20, -0.25, -0.15, -0.30, -0.45, 0.20, 0.10, 0.08],
+  events: {
+    1: "Concerns rise over Yes Bank’s rising bad loans (NPAs).",
+    2: "Credit rating downgrades trigger investor fear.",
+    3: "Top management changes. CEO exits amid uncertainty.",
+    4: "Stock price falls sharply. Trust begins to weaken.",
+    5: "Depositors start worrying about bank safety.",
+    6: "RBI steps in and imposes withdrawal limits.",
+    7: "Panic spreads. Stock crashes heavily.",
+    8: "SBI-led rescue plan announced to stabilize the bank.",
+    9: "Restrictions lifted. Operations normalize slowly.",
+    10: "Gradual recovery, but investor confidence remains cautious."
+  },
+  whispers: {
+    1: "It is just another private bank. Nothing to worry about.",
+    3: "Why is management changing so suddenly?",
+    4: "This fall looks scary… should I sell now?",
+    6: "Withdrawal limits?! Is my money safe?",
+    7: "Everything is collapsing. Get out immediately!",
+    8: "Maybe the rescue will fix things… or is it too late?",
+    10: "Slowly recovering… but trust takes time to rebuild."
+  }
+},
     };
 
     // --- STATE ---
@@ -734,11 +814,11 @@
         const pnlPct = (pnl / state.startVal) * 100;
         const isUp = val >= state.startVal;
 
-        el.textContent = '$' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        el.textContent =  '₹' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         el.style.color = isUp ? '#00ff88' : '#ff3366';
         el.style.textShadow = `0 0 20px ${isUp ? '#00ff88' : '#ff3366'}`;
 
-        pnlEl.textContent = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`;
+        pnlEl.textContent = `${pnl >= 0 ? '+' : ''}₹${pnl.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`;
         pnlEl.style.color = isUp ? '#00ff88' : '#ff3366';
 
         el.classList.remove('value-pulse');

@@ -255,6 +255,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="resetApiKey()" class="px-3 py-1.5 text-[10px] font-mono rounded-lg bg-white/5 text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/20 transition uppercase tracking-widest">
+                        <i class="fa-solid fa-key mr-1"></i>Change Key
+                    </button>
                     <button onclick="clearChat()" class="px-3 py-1.5 text-[10px] font-mono rounded-lg bg-white/5 text-slate-400 hover:text-white border border-white/5 hover:border-white/15 transition uppercase tracking-widest">
                         Clear
                     </button>
@@ -308,31 +311,68 @@
         </div>
     </div>
 
+    <!-- API Key Modal -->
+    <div id="api-key-modal" class="fixed inset-0 z-[9999] flex items-center justify-center" style="background:rgba(3,13,26,0.85);backdrop-filter:blur(8px);">
+        <div class="glass rounded-2xl p-8 w-full max-w-md mx-4 border border-brand-blue/20" style="box-shadow:0 0 60px rgba(0,240,255,0.1);">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="ai-avatar w-11 h-11 rounded-xl bg-brand-blue/10 border border-brand-blue/30 flex items-center justify-center">
+                    <i class="fa-solid fa-key text-brand-blue"></i>
+                </div>
+                <div>
+                    <div class="text-white font-bold">Activate VERA</div>
+                    <div class="text-xs font-mono text-slate-400">Groq API Key Required</div>
+                </div>
+            </div>
+            <p class="text-sm text-slate-300 mb-5 leading-relaxed">
+                Enter your free <strong class="text-brand-blue">Groq API key</strong> to enable the AI analyst. 
+                Your key is stored only in your browser and never sent to our servers.
+            </p>
+            <a href="https://console.groq.com/keys" target="_blank" class="text-xs font-mono text-brand-blue hover:underline mb-5 block">
+                → Get a free key at console.groq.com/keys
+            </a>
+            <input 
+                id="api-key-input"
+                type="password"
+                placeholder="gsk_••••••••••••••••••••••••"
+                class="w-full rounded-xl px-4 py-3 text-sm text-white mb-4"
+                style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,240,255,0.2);outline:none;font-family:'Space Mono',monospace;"
+                onkeydown="if(event.key==='Enter') saveApiKey()"
+            />
+            <button onclick="saveApiKey()" class="w-full py-3 rounded-xl font-bold text-sm text-brand-dark bg-brand-blue hover:bg-white transition" style="letter-spacing:0.05em;">
+                ACTIVATE AI ANALYST
+            </button>
+        </div>
+    </div>
+
     <script>
         // ==========================================
-        // GROQ API KEY INJECTED
+        // SECURE API KEY HANDLING (GitHub Pages Safe)
         // ==========================================
-        // ==========================================
-        // ==========================================
-        // SECURE API KEY HANDLING
-        // ==========================================
-        let GROQ_API_KEY = localStorage.getItem('groqApiKey');
+        let GROQ_API_KEY = localStorage.getItem('groqApiKey') || '';
 
-        if (!GROQ_API_KEY) {
-            GROQ_API_KEY = prompt("🔒 Welcome to Fearlessvest!\n\nPlease enter your free Groq API Key to enable the AI Analyst.\n(Your key is saved locally in your browser and never shared).");
-        if (GROQ_API_KEY) {
-            localStorage.setItem('groqApiKey', GROQ_API_KEY.trim());
-        } else {
-            alert("An API key is required. The AI will not respond until you provide one.");
+        function saveApiKey() {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (!val) return;
+            GROQ_API_KEY = val;
+            localStorage.setItem('groqApiKey', val);
+            document.getElementById('api-key-modal').style.display = 'none';
         }
-}
 
-// Function to clear the key if the user wants to log out or change it
-function resetApiKey() {
-    localStorage.removeItem('groqApiKey');
-    location.reload();
-}
+        // Hide modal if key already exists
+        if (GROQ_API_KEY) {
+            document.getElementById('api-key-modal').style.display = 'none';
+        }
 
+        // Allow changing key
+        function resetApiKey() {
+            localStorage.removeItem('groqApiKey');
+            GROQ_API_KEY = '';
+            document.getElementById('api-key-modal').style.display = 'flex';
+        }
+
+        // ==========================================
+        // SYSTEM PROMPT
+        // ==========================================
         const SYSTEM_PROMPT = `You are VERA, a highly advanced Quantitative Technical Market Analyst for the platform Fearlessvest.
 
 Your Objective:
@@ -416,8 +456,14 @@ Your Objective:
         async function sendMessage() {
             const input = document.getElementById('msg-input');
             const msg = input.value.trim();
-            
+
             if (!msg || isLoading) return;
+
+            // Prompt for key if missing
+            if (!GROQ_API_KEY) {
+                document.getElementById('api-key-modal').style.display = 'flex';
+                return;
+            }
 
             input.value = '';
             input.style.height = 'auto';
@@ -431,17 +477,15 @@ Your Objective:
             showTyping();
 
             try {
-                // Using corsproxy.io to bypass browser security blocks for local HTML files
-                const API_URL = 'https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions';
-                
-                const response = await fetch(API_URL, {
+                // Direct Groq API call — Groq supports CORS natively (works on GitHub Pages)
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${GROQ_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: 'llama-3.1-8b-instant', // UPDATED TO ACTIVE MODEL
+                        model: 'llama-3.1-8b-instant',
                         messages: [
                             { role: 'system', content: SYSTEM_PROMPT },
                             ...conversationHistory
@@ -452,21 +496,22 @@ Your Objective:
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API Error ${response.status}: ${errorText}`);
+                    const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
+                    const msg = err?.error?.message || response.statusText;
+                    if (response.status === 401) throw new Error(`Invalid API key. Please update it by clicking "Change Key". Get a free key at console.groq.com/keys`);
+                    throw new Error(`API Error ${response.status}: ${msg}`);
                 }
-                
+
                 const data = await response.json();
                 const aiText = data.choices[0].message.content;
 
                 hideTyping();
                 addMessage('assistant', aiText);
-                
                 conversationHistory.push({ role: 'assistant', content: aiText });
 
             } catch (err) {
                 hideTyping();
-                addMessage('assistant', `⚠️ **Connection Failed:** ${err.message}. If it says '401 Unauthorized', your API key is invalid or deleted. You need to generate a new one at console.groq.com.`);
+                addMessage('assistant', `⚠️ **Error:** ${err.message}`);
                 console.error(err);
             }
 
@@ -496,7 +541,7 @@ Your Objective:
             conversationHistory = [];
             document.getElementById('chat-messages').innerHTML = '';
             document.getElementById('suggestion-area').style.display = 'flex';
-            addMessage('assistant', "Memory cleared. Standing by for new ticker analysis.", false);
+            addMessage('assistant', "Memory cleared. Standing by for new ticker analysis.");
         }
 
         function escapeHtml(str) {

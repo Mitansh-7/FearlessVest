@@ -142,9 +142,6 @@
         .sector-negative { background: rgba(255, 51, 102, 0.15); }
         .sector-neutral  { background: rgba(255, 204, 0, 0.10); }
 
-        /* Candlestick mini chart */
-        .mini-chart canvas { display: block; }
-
         /* Index card glow */
         .index-card {
             position: relative;
@@ -161,13 +158,6 @@
             pointer-events: none;
         }
 
-        /* Animated number counter */
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .count-in { animation: countUp 0.6s ease forwards; }
-
         /* Pulse dot */
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 4px #00ff88, 0 0 8px #00ff88; }
@@ -175,20 +165,10 @@
         }
         .live-dot { animation: pulse-glow 2s ease-in-out infinite; }
 
-        /* AI Insight card shimmer */
-        @keyframes shimmer {
-            0% { background-position: -500px 0; }
-            100% { background-position: 500px 0; }
-        }
-
-        /* Market line chart */
-        #market-chart { width: 100%; height: 200px; }
-
         /* Scroll reveal */
         .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* Horizontal scroll for mobile tickers */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -201,7 +181,6 @@
 </head>
 <body class="antialiased text-slate-300 grid-bg min-h-screen">
 
-    <!-- NAV -->
     <nav class="fixed w-full z-50 glass border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-white" style="font-family:'Syne',sans-serif">
@@ -218,86 +197,76 @@
         </div>
     </nav>
 
-    <!-- TICKER TAPE -->
     <div class="ticker-wrap fixed top-[69px] w-full z-40 py-2">
         <div class="ticker-content" id="ticker-tape">
-            <!-- duplicated for seamless loop -->
-        </div>
+            </div>
     </div>
 
     <main class="pt-36 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
 
-        <!-- PAGE HEADER -->
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 reveal">
             <div>
                 <div class="flex items-center gap-3 mb-3">
                     <span class="w-2.5 h-2.5 rounded-full bg-brand-green live-dot inline-block"></span>
                     <span class="text-xs uppercase tracking-[0.2em] text-brand-green font-mono">Live Data Feed</span>
-                    <span class="text-xs text-slate-500 font-mono" id="last-updated">--:--:-- EST</span>
+                    <span class="text-xs text-slate-500 font-mono" id="last-updated">--:--:-- IST</span>
                 </div>
                 <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-none">Today's<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-green">Market</span></h1>
             </div>
             <div class="glass rounded-xl px-5 py-3 flex items-center gap-3 border border-brand-blue/20 text-sm font-mono">
                 <i class="fa-solid fa-calendar text-brand-blue"></i>
-                <span id="market-date" class="text-white">Friday, Apr 10 2026</span>
+                <span id="market-date" class="text-white">Loading Date...</span>
                 <span class="text-slate-500">|</span>
-                <span id="market-status" class="text-brand-green">NYSE OPEN</span>
+                <span id="market-status" class="text-brand-green">NSE OPEN</span>
             </div>
         </div>
 
-        <!-- MAJOR INDICES ROW -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 reveal">
-            <!-- S&P 500 -->
             <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all group">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">S&P 500</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-brand-green/15 text-brand-green font-mono">+1.24%</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NIFTY 50</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-brand-green/15 text-brand-green font-mono">+0.84%</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">5,783<span class="text-brand-blue text-lg">.42</span></div>
-                <div class="text-xs text-brand-green font-mono">▲ +70.87 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-spx"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">22,642<span class="text-brand-blue text-lg">.15</span></div>
+                <div class="text-xs text-brand-green font-mono">▲ +188.40 pts</div>
+                <canvas class="mt-3 w-full h-10" id="chart-nifty"></canvas>
             </div>
-            <!-- NASDAQ -->
             <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-blue/30 transition-all group">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NASDAQ</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">SENSEX</span>
                     <span class="text-xs px-2 py-0.5 rounded bg-brand-green/15 text-brand-green font-mono">+0.91%</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">18,240<span class="text-brand-blue text-lg">.10</span></div>
-                <div class="text-xs text-brand-green font-mono">▲ +164.72 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-ixic"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">74,680<span class="text-brand-blue text-lg">.20</span></div>
+                <div class="text-xs text-brand-green font-mono">▲ +673.10 pts</div>
+                <canvas class="mt-3 w-full h-10" id="chart-sensex"></canvas>
             </div>
-            <!-- DOW -->
             <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-brand-red/30 transition-all group">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">DOW JONES</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">NIFTY BANK</span>
                     <span class="text-xs px-2 py-0.5 rounded bg-brand-red/15 text-brand-red font-mono">-0.33%</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">42,010<span class="text-brand-blue text-lg">.55</span></div>
-                <div class="text-xs text-brand-red font-mono">▼ -138.50 pts</div>
-                <canvas class="mt-3 w-full h-10" id="chart-dji"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">48,210<span class="text-brand-blue text-lg">.55</span></div>
+                <div class="text-xs text-brand-red font-mono">▼ -159.50 pts</div>
+                <canvas class="mt-3 w-full h-10" id="chart-banknifty"></canvas>
             </div>
-            <!-- VIX -->
             <div class="glass index-card rounded-xl p-5 border border-white/5 hover:border-yellow-400/30 transition-all group">
                 <div class="flex justify-between items-start mb-3">
-                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">VIX (Fear)</span>
+                    <span class="text-xs text-slate-400 font-mono uppercase tracking-wider">INDIA VIX</span>
                     <span class="text-xs px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-400 font-mono">ELEVATED</span>
                 </div>
-                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">22<span class="text-brand-blue text-lg">.47</span></div>
-                <div class="text-xs text-yellow-400 font-mono">▲ +3.12 pts · Caution Zone</div>
-                <canvas class="mt-3 w-full h-10" id="chart-vix"></canvas>
+                <div class="text-2xl md:text-3xl font-extrabold text-white font-mono mb-1">15<span class="text-brand-blue text-lg">.47</span></div>
+                <div class="text-xs text-yellow-400 font-mono">▲ +1.12 pts · Caution Zone</div>
+                <canvas class="mt-3 w-full h-10" id="chart-indiavix"></canvas>
             </div>
         </div>
 
-        <!-- MAIN GRID: CHART + FEAR GAUGE + AI INSIGHT -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-            <!-- SPX Full Day Chart -->
             <div class="lg:col-span-2 glass rounded-2xl p-6 border border-white/5 reveal">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-lg font-bold text-white">S&P 500 — Intraday</h2>
-                        <p class="text-xs text-slate-400 font-mono mt-0.5">9:30 AM → Live</p>
+                        <h2 class="text-lg font-bold text-white">NIFTY 50 — Intraday</h2>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">9:15 AM IST → Live</p>
                     </div>
                     <div class="flex gap-2">
                         <button class="chart-range-btn active px-3 py-1.5 text-xs font-mono rounded-lg bg-brand-blue/20 text-brand-blue border border-brand-blue/30">1D</button>
@@ -308,13 +277,12 @@
                 </div>
                 <canvas id="main-chart" style="width:100%;height:220px;"></canvas>
                 <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/5 text-xs font-mono text-slate-500">
-                    <span>Day Low: <span class="text-brand-red">5,701.18</span></span>
-                    <span>Open: <span class="text-white">5,712.55</span></span>
-                    <span>Day High: <span class="text-brand-green">5,789.30</span></span>
+                    <span>Day Low: <span class="text-brand-red">22,450.18</span></span>
+                    <span>Open: <span class="text-white">22,510.55</span></span>
+                    <span>Day High: <span class="text-brand-green">22,680.30</span></span>
                 </div>
             </div>
 
-            <!-- Fear & Greed Gauge -->
             <div class="glass rounded-2xl p-6 border border-white/5 flex flex-col reveal">
                 <h2 class="text-lg font-bold text-white mb-1">Fear & Greed</h2>
                 <p class="text-xs text-slate-400 font-mono mb-6">Psychological Market Pressure</p>
@@ -368,12 +336,11 @@
             </div>
         </div>
 
-        <!-- SECTOR HEATMAP -->
         <div class="glass rounded-2xl p-6 border border-white/5 mb-8 reveal">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h2 class="text-lg font-bold text-white">Sector Performance</h2>
-                    <p class="text-xs text-slate-400 font-mono">S&P 500 Sectors · Today</p>
+                    <p class="text-xs text-slate-400 font-mono">NSE Sectors · Today</p>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-mono">
                     <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-brand-green/30 inline-block"></span> Positive</span>
@@ -382,14 +349,11 @@
             </div>
 
             <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-11 gap-2" id="sector-heatmap">
-                <!-- Populated by JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- AI DAILY BRIEFING + TOP MOVERS -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-            <!-- AI Briefing -->
             <div class="glass rounded-2xl p-6 border border-brand-blue/20 reveal" style="background: rgba(0,240,255,0.02)">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-10 h-10 rounded-xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20">
@@ -399,27 +363,26 @@
                         <h2 class="text-base font-bold text-white">AI Daily Briefing</h2>
                         <p class="text-xs text-slate-400 font-mono">Generated at market open</p>
                     </div>
-                    <span class="ml-auto text-xs px-2 py-1 bg-brand-blue/10 text-brand-blue rounded-lg border border-brand-blue/20 font-mono">GPT-4o</span>
+                    <span class="ml-auto text-xs px-2 py-1 bg-brand-blue/10 text-brand-blue rounded-lg border border-brand-blue/20 font-mono">VERA AI</span>
                 </div>
 
                 <div class="space-y-4 text-sm leading-relaxed">
                     <p class="text-slate-300">
-                        Markets are opening with <span class="text-yellow-300 font-semibold">mixed signals</span> today. The S&P 500 is pushing higher driven by tech earnings beats, but Dow weakness signals rotation out of industrials.
+                        Indian markets are exhibiting <span class="text-yellow-300 font-semibold">mixed momentum</span> today. The NIFTY 50 is finding support near the 22,500 mark driven by heavyweights in the IT sector, while Bank Nifty faces minor selling pressure ahead of RBI commentary.
                     </p>
                     <p class="text-slate-300">
-                        The VIX at <span class="text-yellow-400 font-mono font-bold">22.47</span> remains elevated — this is the market's heartbeat telling you it's <span class="text-yellow-300">uncertain, not crashing</span>. Historical data shows VIX between 20-25 resolves upward 68% of the time over the next 30 days.
+                        India VIX at <span class="text-yellow-400 font-mono font-bold">15.47</span> indicates mild caution. Foreign Institutional Investors (FIIs) remain net sellers, creating <span class="text-yellow-300">localized volatility</span>. Remember, DII inflows historically absorb these shocks well.
                     </p>
                     <div class="p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
                         <p class="text-brand-green font-semibold text-sm">🧠 Fearlessvest Recommendation</p>
-                        <p class="text-slate-300 text-xs mt-1.5">Your psychological baseline says "Conservative Long-Term Hold." Today's noise is irrelevant to your horizon. <strong class="text-white">No action required.</strong></p>
+                        <p class="text-slate-300 text-xs mt-1.5">Your psychological baseline says "Conservative Long-Term Hold." Today's intraday noise is irrelevant to your 5-year horizon. <strong class="text-white">No action required. Maintain SIPs.</strong></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Top Movers -->
             <div class="glass rounded-2xl p-6 border border-white/5 reveal">
                 <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-base font-bold text-white">Top Movers</h2>
+                    <h2 class="text-base font-bold text-white">Top Movers (NIFTY 50)</h2>
                     <div class="flex gap-1 p-1 rounded-lg bg-white/5">
                         <button id="btn-gainers" onclick="showMovers('gainers')" class="mover-tab active px-3 py-1 text-xs font-mono rounded bg-brand-green/20 text-brand-green">Gainers</button>
                         <button id="btn-losers" onclick="showMovers('losers')" class="mover-tab px-3 py-1 text-xs font-mono rounded text-slate-400 hover:text-white transition">Losers</button>
@@ -427,14 +390,12 @@
                 </div>
 
                 <div id="movers-list" class="space-y-2">
-                    <!-- Populated by JS -->
-                </div>
+                    </div>
             </div>
         </div>
 
-        <!-- ECONOMIC CALENDAR -->
         <div class="glass rounded-2xl p-6 border border-white/5 reveal">
-            <h2 class="text-base font-bold text-white mb-5"><i class="fa-solid fa-calendar-days text-brand-blue mr-2"></i>Upcoming Economic Events</h2>
+            <h2 class="text-base font-bold text-white mb-5"><i class="fa-solid fa-calendar-days text-brand-blue mr-2"></i>Upcoming Economic Events (India)</h2>
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-xs font-mono text-left min-w-[600px]">
                     <thead>
@@ -449,31 +410,24 @@
                     <tbody class="text-slate-300">
                         <tr class="border-b border-white/5 hover:bg-white/3 transition">
                             <td class="py-3 text-brand-blue">Today</td>
-                            <td class="py-3">CPI Data (YoY)</td>
+                            <td class="py-3">India CPI Inflation (YoY)</td>
                             <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">HIGH</span></td>
-                            <td class="py-3">3.2%</td>
-                            <td class="py-3 text-yellow-300">3.0%</td>
+                            <td class="py-3">5.09%</td>
+                            <td class="py-3 text-yellow-300">4.91%</td>
                         </tr>
                         <tr class="border-b border-white/5 hover:bg-white/3 transition">
-                            <td class="py-3">Apr 15</td>
-                            <td class="py-3">Fed Beige Book</td>
+                            <td class="py-3">Tomorrow</td>
+                            <td class="py-3">IIP Growth Data</td>
                             <td class="py-3"><span class="px-2 py-0.5 bg-yellow-400/20 text-yellow-400 rounded text-[10px]">MED</span></td>
-                            <td class="py-3">—</td>
-                            <td class="py-3 text-slate-400">Mixed</td>
+                            <td class="py-3">3.8%</td>
+                            <td class="py-3 text-slate-400">4.1%</td>
                         </tr>
                         <tr class="border-b border-white/5 hover:bg-white/3 transition">
-                            <td class="py-3">Apr 17</td>
-                            <td class="py-3">Retail Sales MoM</td>
+                            <td class="py-3">Next Week</td>
+                            <td class="py-3">RBI Monetary Policy Minutes</td>
                             <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">HIGH</span></td>
-                            <td class="py-3">0.8%</td>
-                            <td class="py-3 text-yellow-300">0.5%</td>
-                        </tr>
-                        <tr class="hover:bg-white/3 transition">
-                            <td class="py-3">Apr 22</td>
-                            <td class="py-3">FOMC Meeting</td>
-                            <td class="py-3"><span class="px-2 py-0.5 bg-brand-red/20 text-brand-red rounded text-[10px]">CRITICAL</span></td>
-                            <td class="py-3">5.25%</td>
-                            <td class="py-3 text-brand-green">5.00%</td>
+                            <td class="py-3">6.50%</td>
+                            <td class="py-3 text-brand-green">6.50%</td>
                         </tr>
                     </tbody>
                 </table>
@@ -485,58 +439,113 @@
     <footer class="border-t border-white/10 bg-[#030d1a]/90 backdrop-blur-lg py-8 px-6 relative z-10 mt-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="text-white font-bold" style="font-family:'Syne',sans-serif"><i class="fa-solid fa-shield-halved text-brand-blue"></i> Fearlessvest</div>
-            <div class="text-slate-600 text-xs font-mono">&copy; 2026 Fearlessvest · Data for educational purposes only</div>
+            <div class="text-slate-600 text-xs font-mono">&copy; <span id="current-year">2026</span> Fearlessvest · Data for educational purposes only</div>
         </div>
     </footer>
 
     <script>
-        // === TICKER TAPE ===
-        const tickerSymbols = [
-            { sym: 'AAPL', val: '189.42', chg: '+1.2%', up: true },
-            { sym: 'NVDA', val: '872.10', chg: '+3.7%', up: true },
-            { sym: 'MSFT', val: '412.88', chg: '+0.8%', up: true },
-            { sym: 'TSLA', val: '241.30', chg: '-2.1%', up: false },
-            { sym: 'META', val: '534.70', chg: '+1.4%', up: true },
-            { sym: 'AMZN', val: '193.50', chg: '+0.5%', up: true },
-            { sym: 'GOOGL', val: '167.20', chg: '-0.3%', up: false },
-            { sym: 'JPM', val: '198.40', chg: '+0.2%', up: true },
-            { sym: 'BTC', val: '84,200', chg: '+2.8%', up: true },
-            { sym: 'ETH', val: '3,210', chg: '+1.1%', up: true },
-            { sym: 'GLD', val: '3,140', chg: '+0.4%', up: true },
-            { sym: 'OIL', val: '71.30', chg: '-1.3%', up: false },
-            { sym: 'DXY', val: '104.2', chg: '+0.3%', up: true },
-            { sym: 'SPY', val: '577.40', chg: '+1.2%', up: true },
-        ];
+        // === TICKER TAPE LOGIC (LIVE INDIAN MARKET INTEGRATION) ===
+        const tape = document.getElementById('ticker-tape');
 
-        function buildTicker() {
-            const tape = document.getElementById('ticker-tape');
+        async function fetchIndianMarketData() {
+            try {
+                // IMPORTANT: Replace 'YOUR_TWELVEDATA_API_KEY' with your actual free API key from twelvedata.com
+                const apiKey = 'YOUR_TWELVEDATA_API_KEY';
+                
+                // Top Indian Stocks (NSE symbols)
+                const symbols = 'RELIANCE,TCS,HDFCBANK,INFY,SBIN,ITC,ICICIBANK,LT';
+                
+                // Fallback placeholder data if no API key is provided
+                if (apiKey === 'YOUR_TWELVEDATA_API_KEY') {
+                     renderTicker([
+                         { sym: 'RELIANCE', val: '2,930.50', chg: '+1.2%', up: true },
+                         { sym: 'TCS', val: '3,845.20', chg: '-0.4%', up: false },
+                         { sym: 'HDFCBANK', val: '1,520.80', chg: '+0.8%', up: true },
+                         { sym: 'INFY', val: '1,480.10', chg: '+2.1%', up: true },
+                         { sym: 'SBIN', val: '810.45', chg: '-1.1%', up: false },
+                         { sym: 'ITC', val: '435.60', chg: '+0.3%', up: true },
+                         { sym: 'ICICIBANK', val: '1,085.20', chg: '+1.5%', up: true },
+                         { sym: 'LT', val: '3,650.00', chg: '-0.2%', up: false }
+                     ]);
+                     return;
+                }
+
+                // Fetch live data from Twelve Data 
+                const res = await fetch(`https://api.twelvedata.com/quote?symbol=${symbols}&country=India&apikey=${apiKey}`);
+                const data = await res.json();
+
+                if (data.status === "error") throw new Error(data.message);
+
+                const tickerData = Object.values(data).map(stock => {
+                    const currentPrice = parseFloat(stock.close);
+                    const previousClose = parseFloat(stock.previous_close);
+                    const percentChange = ((currentPrice - previousClose) / previousClose) * 100;
+                    
+                    return {
+                        sym: stock.symbol,
+                        val: currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        chg: percentChange.toFixed(2) + '%',
+                        up: percentChange >= 0
+                    };
+                });
+
+                renderTicker(tickerData);
+
+            } catch (error) {
+                console.error("Error fetching live Indian ticker data:", error);
+                tape.innerHTML = `<span class="px-6 text-xs font-mono text-brand-red">LIVE FEED DISCONNECTED - RETRYING...</span>`;
+            }
+        }
+
+        function renderTicker(data) {
             let html = '';
-            for (let i = 0; i < 2; i++) {
-                tickerSymbols.forEach(t => {
+            for (let r = 0; r < 2; r++) {
+                data.forEach(t => {
                     const col = t.up ? '#00ff88' : '#ff3366';
                     const arrow = t.up ? '▲' : '▼';
-                    html += `<span class="inline-flex items-center gap-2 px-6 text-xs font-mono border-r border-white/10" style="color:rgba(255,255,255,0.7)">
-                        <span class="font-bold" style="color:white">${t.sym}</span>
-                        <span>${t.val}</span>
-                        <span style="color:${col}">${arrow} ${t.chg}</span>
+                    const cleanChg = t.chg.replace(/[+-]/g, '');
+
+                    html += `<span class="inline-flex items-center gap-2 px-6 text-xs font-mono border-r border-white/8" style="color:rgba(255,255,255,0.6)">
+                        <span style="color:white;font-weight:700">${t.sym}</span>
+                        <span>₹${t.val}</span>
+                        <span style="color:${col}">${arrow} ${cleanChg}</span>
                     </span>`;
                 });
             }
             tape.innerHTML = html;
         }
-        buildTicker();
 
-        // === UPDATE CLOCK ===
+        // Run fetch on load, update every 60s
+        fetchIndianMarketData();
+        setInterval(fetchIndianMarketData, 60000);
+
+        // === UPDATE DATE & CLOCK TO IST ===
         function updateTime() {
             const now = new Date();
-            const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            const h = est.getHours().toString().padStart(2,'0');
-            const m = est.getMinutes().toString().padStart(2,'0');
-            const s = est.getSeconds().toString().padStart(2,'0');
-            document.getElementById('last-updated').textContent = `${h}:${m}:${s} EST`;
-            const isOpen = est.getHours() >= 9 && est.getHours() < 16 && est.getDay() >= 1 && est.getDay() <= 5;
+            const opts = { timeZone: "Asia/Kolkata" };
+            
+            // Auto update Footer year
+            document.getElementById('current-year').textContent = now.getFullYear();
+
+            // Formatted Time
+            const timeStr = now.toLocaleTimeString("en-IN", { ...opts, hour12: false });
+            document.getElementById('last-updated').textContent = timeStr + ' IST';
+            
+            // Formatted Date
+            const dateStr = now.toLocaleDateString("en-IN", { ...opts, weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('market-date').textContent = dateStr;
+
+            // NSE Market Hours Logic (9:15 AM to 3:30 PM IST, Mon-Fri)
+            const istDate = new Date(now.toLocaleString("en-US", opts));
+            const h = istDate.getHours();
+            const m = istDate.getMinutes();
+            const day = istDate.getDay();
+            
+            const isOpen = (day >= 1 && day <= 5) && 
+                           ((h === 9 && m >= 15) || (h > 9 && h < 15) || (h === 15 && m <= 30));
+            
             const statusEl = document.getElementById('market-status');
-            statusEl.textContent = isOpen ? 'NYSE OPEN' : 'NYSE CLOSED';
+            statusEl.textContent = isOpen ? 'NSE OPEN' : 'NSE CLOSED';
             statusEl.style.color = isOpen ? '#00ff88' : '#ff3366';
         }
         setInterval(updateTime, 1000);
@@ -571,7 +580,7 @@
             }
         }
 
-        // Generate random-walk data
+        // Generate random-walk data for charts
         function randWalk(n, start, volatility) {
             const d = [start];
             for (let i = 1; i < n; i++) d.push(d[i-1] + (Math.random() - 0.48) * volatility);
@@ -579,14 +588,14 @@
         }
 
         window.addEventListener('load', () => {
-            drawSparkline('chart-spx', randWalk(40, 5712, 15), '#00ff88', true);
-            drawSparkline('chart-ixic', randWalk(40, 18100, 60), '#00ff88', true);
-            drawSparkline('chart-dji', randWalk(40, 42150, 80), '#ff3366', true);
-            drawSparkline('chart-vix', randWalk(40, 19, 1.2), '#ffcc00', true);
+            drawSparkline('chart-nifty', randWalk(40, 22500, 50), '#00ff88', true);
+            drawSparkline('chart-sensex', randWalk(40, 74000, 150), '#00ff88', true);
+            drawSparkline('chart-banknifty', randWalk(40, 48000, 100), '#ff3366', true);
+            drawSparkline('chart-indiavix', randWalk(40, 15, 0.5), '#ffcc00', true);
             drawMainChart();
         });
 
-        // === MAIN CHART ===
+        // === MAIN NIFTY INTRADAY CHART ===
         function drawMainChart() {
             const canvas = document.getElementById('main-chart');
             const ctx = canvas.getContext('2d');
@@ -596,9 +605,9 @@
             ctx.scale(dpr, dpr);
             const W = canvas.offsetWidth, H = 220;
             
-            // Generate intraday data (9:30 AM to now, 78 data points = every 5 min)
-            const data = randWalk(78, 5712, 8);
-            const min = Math.min(...data) - 5, max = Math.max(...data) + 5;
+            // Intraday simulation
+            const data = randWalk(78, 22500, 20); 
+            const min = Math.min(...data) - 15, max = Math.max(...data) + 15;
             const range = max - min;
             const pts = data.map((v, i) => ({
                 x: (i / (data.length - 1)) * W,
@@ -611,7 +620,7 @@
             for (let i = 0; i <= 4; i++) {
                 const y = (H - 20) * (i / 4) + 10;
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-                const val = (max - (range * i / 4)).toFixed(0);
+                const val = (max - (range * i / 4)).toLocaleString('en-IN', { maximumFractionDigits: 0 });
                 ctx.fillStyle = 'rgba(255,255,255,0.2)';
                 ctx.font = `${9 * dpr / dpr}px 'Space Mono'`;
                 ctx.fillText(val, 2, y - 3);
@@ -650,7 +659,6 @@
         }
 
         // === FEAR & GREED GAUGE ===
-        // 0 = Extreme Fear (-90deg), 100 = Extreme Greed (+90deg)
         function setGauge(value) {
             const needle = document.getElementById('gauge-needle');
             const angle = -90 + (value / 100) * 180;
@@ -664,19 +672,19 @@
         }
         setTimeout(() => setGauge(38), 500);
 
-        // === SECTOR HEATMAP ===
+        // === NSE SECTOR HEATMAP ===
         const sectors = [
-            { name: 'Tech', change: +2.4, size: 2 },
-            { name: 'Comm', change: +1.1, size: 1 },
-            { name: 'Health', change: -0.8, size: 2 },
-            { name: 'Finance', change: +0.3, size: 2 },
+            { name: 'IT', change: +2.4, size: 2 },
+            { name: 'FMCG', change: +1.1, size: 1 },
+            { name: 'Pharma', change: -0.8, size: 2 },
+            { name: 'Bank', change: -0.3, size: 2 },
             { name: 'Energy', change: -1.7, size: 1 },
-            { name: 'Utilities', change: +0.5, size: 1 },
-            { name: 'Cons.Disc', change: +0.9, size: 1 },
-            { name: 'Cons.Stap', change: -0.2, size: 1 },
-            { name: 'Industrl', change: -1.1, size: 1 },
-            { name: 'Materials', change: +0.7, size: 1 },
-            { name: 'Real Est', change: -2.3, size: 1 },
+            { name: 'Power', change: +0.5, size: 1 },
+            { name: 'Auto', change: +0.9, size: 1 },
+            { name: 'Realty', change: -0.2, size: 1 },
+            { name: 'Metal', change: -1.1, size: 1 },
+            { name: 'PSU Bank', change: +0.7, size: 1 },
+            { name: 'Media', change: -2.3, size: 1 },
         ];
 
         function buildHeatmap() {
@@ -700,20 +708,20 @@
         }
         buildHeatmap();
 
-        // === TOP MOVERS ===
+        // === TOP MOVERS (INDIAN STOCKS) ===
         const gainers = [
-            { sym: 'NVDA', name: 'NVIDIA Corp', chg: '+3.72%', val: '872.10' },
-            { sym: 'PLTR', name: 'Palantir', chg: '+3.10%', val: '24.80' },
-            { sym: 'AMD', name: 'AMD', chg: '+2.88%', val: '178.40' },
-            { sym: 'SMCI', name: 'Super Micro', chg: '+2.60%', val: '88.50' },
-            { sym: 'ARM', name: 'Arm Holdings', chg: '+2.15%', val: '124.30' },
+            { sym: 'RELIANCE', name: 'Reliance Ind', chg: '+3.72%', val: '2,930.50' },
+            { sym: 'TCS', name: 'Tata Consultancy', chg: '+3.10%', val: '3,845.20' },
+            { sym: 'INFY', name: 'Infosys Ltd', chg: '+2.88%', val: '1,480.40' },
+            { sym: 'HDFCBANK', name: 'HDFC Bank', chg: '+2.60%', val: '1,520.50' },
+            { sym: 'BHARTIARTL', name: 'Bharti Airtel', chg: '+2.15%', val: '1,240.30' },
         ];
         const losers = [
-            { sym: 'TSLA', name: 'Tesla Inc', chg: '-2.10%', val: '241.30' },
-            { sym: 'INTC', name: 'Intel Corp', chg: '-1.89%', val: '31.20' },
-            { sym: 'VNQ', name: 'Vanguard REIT', chg: '-1.72%', val: '83.40' },
-            { sym: 'XOM', name: 'Exxon Mobil', chg: '-1.30%', val: '112.80' },
-            { sym: 'BA', name: 'Boeing Co', chg: '-0.98%', val: '172.50' },
+            { sym: 'SBIN', name: 'State Bank India', chg: '-2.10%', val: '810.30' },
+            { sym: 'ITC', name: 'ITC Ltd', chg: '-1.89%', val: '435.20' },
+            { sym: 'LT', name: 'Larsen & Toubro', chg: '-1.72%', val: '3,650.40' },
+            { sym: 'BAJFINANCE', name: 'Bajaj Finance', chg: '-1.30%', val: '7,112.80' },
+            { sym: 'MARUTI', name: 'Maruti Suzuki', chg: '-0.98%', val: '12,472.50' },
         ];
 
         function showMovers(type) {
@@ -726,12 +734,12 @@
                         <div class="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold font-mono" style="background:rgba(0,240,255,0.1);color:#00f0ff">${m.sym.slice(0,4)}</div>
                         <div>
                             <div class="text-white text-sm font-semibold">${m.sym}</div>
-                            <div class="text-slate-500 text-xs font-mono">${m.name}</div>
+                            <div class="text-slate-500 text-[10px] font-mono">${m.name}</div>
                         </div>
                     </div>
                     <div class="text-right">
                         <div class="font-bold text-sm font-mono" style="color:${col}">${m.chg}</div>
-                        <div class="text-slate-400 text-xs font-mono">$${m.val}</div>
+                        <div class="text-slate-400 text-xs font-mono">₹${m.val}</div>
                     </div>
                 </div>
             `).join('');
@@ -741,7 +749,7 @@
             const activeBtn = document.getElementById(`btn-${type}`);
             activeBtn.className = `mover-tab active px-3 py-1 text-xs font-mono rounded ${type==='gainers'?'bg-brand-green/20 text-brand-green':'bg-brand-red/20 text-[#ff3366]'}`;
         }
-        showMovers('gainers'); //
+        showMovers('gainers'); 
 
         // === CHART RANGE BUTTONS ===
         document.querySelectorAll('.chart-range-btn').forEach(btn => {
@@ -750,7 +758,7 @@
                     b.className = 'chart-range-btn px-3 py-1.5 text-xs font-mono rounded-lg text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/30 transition';
                 });
                 this.className = 'chart-range-btn active px-3 py-1.5 text-xs font-mono rounded-lg bg-brand-blue/20 text-brand-blue border border-brand-blue/30';
-                drawMainChart(); // In real app, fetch different data
+                drawMainChart(); 
             });
         });
 

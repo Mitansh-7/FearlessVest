@@ -255,9 +255,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="resetApiKey()" class="px-3 py-1.5 text-[10px] font-mono rounded-lg bg-white/5 text-slate-400 hover:text-brand-blue border border-white/5 hover:border-brand-blue/20 transition uppercase tracking-widest">
-                        <i class="fa-solid fa-key mr-1"></i>Change Key
-                    </button>
+                    <span id="backend-badge" class="px-2 py-1 text-[10px] font-mono rounded-lg border font-bold" style="background:rgba(255,204,0,0.08);color:#fbbf24;border-color:rgba(255,204,0,0.2)">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400 mr-1" style="vertical-align:middle"></span>CONNECTING...
+                    </span>
                     <button onclick="clearChat()" class="px-3 py-1.5 text-[10px] font-mono rounded-lg bg-white/5 text-slate-400 hover:text-white border border-white/5 hover:border-white/15 transition uppercase tracking-widest">
                         Clear
                     </button>
@@ -311,81 +311,38 @@
         </div>
     </div>
 
-    <!-- API Key Modal -->
-    <div id="api-key-modal" class="fixed inset-0 z-[9999] flex items-center justify-center" style="background:rgba(3,13,26,0.85);backdrop-filter:blur(8px);">
-        <div class="glass rounded-2xl p-8 w-full max-w-md mx-4 border border-brand-blue/20" style="box-shadow:0 0 60px rgba(0,240,255,0.1);">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="ai-avatar w-11 h-11 rounded-xl bg-brand-blue/10 border border-brand-blue/30 flex items-center justify-center">
-                    <i class="fa-solid fa-key text-brand-blue"></i>
-                </div>
-                <div>
-                    <div class="text-white font-bold">Activate VERA</div>
-                    <div class="text-xs font-mono text-slate-400">Groq API Key Required</div>
-                </div>
-            </div>
-            <p class="text-sm text-slate-300 mb-5 leading-relaxed">
-                Enter your free <strong class="text-brand-blue">Groq API key</strong> to enable the AI analyst. 
-                Your key is stored only in your browser and never sent to our servers.
-            </p>
-            <a href="https://console.groq.com/keys" target="_blank" class="text-xs font-mono text-brand-blue hover:underline mb-5 block">
-                → Get a free key at console.groq.com/keys
-            </a>
-            <input 
-                id="api-key-input"
-                type="password"
-                placeholder="gsk_••••••••••••••••••••••••"
-                class="w-full rounded-xl px-4 py-3 text-sm text-white mb-4"
-                style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,240,255,0.2);outline:none;font-family:'Space Mono',monospace;"
-                onkeydown="if(event.key==='Enter') saveApiKey()"
-            />
-            <button onclick="saveApiKey()" class="w-full py-3 rounded-xl font-bold text-sm text-brand-dark bg-brand-blue hover:bg-white transition" style="letter-spacing:0.05em;">
-                ACTIVATE AI ANALYST
-            </button>
-        </div>
-    </div>
-
     <script>
-        // ==========================================
-        // SECURE API KEY HANDLING (GitHub Pages Safe)
-        // ==========================================
-        let GROQ_API_KEY = localStorage.getItem('groqApiKey') || '';
+        // =====================================================
+        // BACKEND CONFIG
+        // The API key lives in backend/.env — never in this file.
+        // Run start_backend.bat first, then open this page.
+        // =====================================================
+        const BACKEND_URL = 'http://localhost:5000/api/chat';
+        const HEALTH_URL  = 'http://localhost:5000/api/health';
 
-        function saveApiKey() {
-            const val = document.getElementById('api-key-input').value.trim();
-            if (!val) return;
-            GROQ_API_KEY = val;
-            localStorage.setItem('groqApiKey', val);
-            document.getElementById('api-key-modal').style.display = 'none';
+        // Check if the Flask backend is reachable
+        async function checkBackendStatus() {
+            const badge = document.getElementById('backend-badge');
+            try {
+                const res = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(3000) });
+                const data = await res.json();
+                if (data.status === 'ok' && data.key_configured) {
+                    badge.innerHTML = '<span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-green mr-1" style="vertical-align:middle"></span>BACKEND LIVE';
+                    badge.style.cssText = 'background:rgba(0,255,136,0.08);color:#00ff88;border-color:rgba(0,255,136,0.2);padding:4px 8px;font-size:10px;font-family:Space Mono,monospace;border-radius:8px;border-width:1px;border-style:solid;font-weight:700';
+                } else {
+                    badge.innerHTML = '<span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400 mr-1" style="vertical-align:middle"></span>KEY MISSING';
+                    badge.style.cssText = 'background:rgba(255,204,0,0.08);color:#fbbf24;border-color:rgba(255,204,0,0.2);padding:4px 8px;font-size:10px;font-family:Space Mono,monospace;border-radius:8px;border-width:1px;border-style:solid;font-weight:700';
+                }
+            } catch {
+                badge.innerHTML = '<span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-red mr-1" style="vertical-align:middle"></span>BACKEND OFFLINE';
+                badge.style.cssText = 'background:rgba(255,51,102,0.08);color:#ff3366;border-color:rgba(255,51,102,0.2);padding:4px 8px;font-size:10px;font-family:Space Mono,monospace;border-radius:8px;border-width:1px;border-style:solid;font-weight:700';
+            }
         }
+        checkBackendStatus();
+        setInterval(checkBackendStatus, 15000); // Re-check every 15s
 
-        // Hide modal if key already exists
-        if (GROQ_API_KEY) {
-            document.getElementById('api-key-modal').style.display = 'none';
-        }
-
-        // Allow changing key
-        function resetApiKey() {
-            localStorage.removeItem('groqApiKey');
-            GROQ_API_KEY = '';
-            document.getElementById('api-key-modal').style.display = 'flex';
-        }
-
-        // ==========================================
-        // SYSTEM PROMPT
-        // ==========================================
-        const SYSTEM_PROMPT = `You are VERA, a highly advanced Quantitative Technical Market Analyst for the platform Fearlessvest.
-
-Your Objective:
-- Provide technical analysis, hypothetical trade setups, and trend predictions based on standard market indicators.
-- When asked for a trade prediction, clearly output a hypothetical scenario including: 
-  1. Entry Zone
-  2. Take Profit (TP) Targets
-  3. Stop Loss (SL)
-  4. Reasoning (RSI, MACD, Volume, Support/Resistance).
-- Adopt a professional, analytical, and sharp trader persona.
-- Format numbers cleanly. Use bolding (**text**) for key price levels and targets.
-- ALWAYS include a brief, one-sentence disclaimer at the very end stating that this is an AI simulation and not actual financial advice.
-- Keep your responses under 200 words. Be concise and actionable.`;
+        // Remove legacy references
+        const SYSTEM_PROMPT = null; // System prompt lives in backend/app.py
 
         let conversationHistory = [];
         let isLoading = false;
@@ -459,12 +416,6 @@ Your Objective:
 
             if (!msg || isLoading) return;
 
-            // Prompt for key if missing
-            if (!GROQ_API_KEY) {
-                document.getElementById('api-key-modal').style.display = 'flex';
-                return;
-            }
-
             input.value = '';
             input.style.height = 'auto';
             document.getElementById('suggestion-area').style.display = 'none';
@@ -477,33 +428,20 @@ Your Objective:
             showTyping();
 
             try {
-                // Direct Groq API call — Groq supports CORS natively (works on GitHub Pages)
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                // Call our secure Flask backend — API key never touches the browser
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${GROQ_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: 'llama-3.1-8b-instant',
-                        messages: [
-                            { role: 'system', content: SYSTEM_PROMPT },
-                            ...conversationHistory
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 300
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: conversationHistory })
                 });
 
                 if (!response.ok) {
-                    const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
-                    const msg = err?.error?.message || response.statusText;
-                    if (response.status === 401) throw new Error(`Invalid API key. Please update it by clicking "Change Key". Get a free key at console.groq.com/keys`);
-                    throw new Error(`API Error ${response.status}: ${msg}`);
+                    const err = await response.json().catch(() => ({ error: response.statusText }));
+                    throw new Error(err.error || `Server error ${response.status}`);
                 }
 
                 const data = await response.json();
-                const aiText = data.choices[0].message.content;
+                const aiText = data.reply;
 
                 hideTyping();
                 addMessage('assistant', aiText);
@@ -511,7 +449,10 @@ Your Objective:
 
             } catch (err) {
                 hideTyping();
-                addMessage('assistant', `⚠️ **Error:** ${err.message}`);
+                const isOffline = err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch');
+                addMessage('assistant', isOffline
+                    ? `⚠️ **Backend Offline.** Please run **start_backend.bat** first, then refresh this page.`
+                    : `⚠️ **Error:** ${err.message}`);
                 console.error(err);
             }
 

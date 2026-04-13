@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -15,7 +18,7 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Syne','sans-serif'], mono: ['Space Mono','monospace'] },
+                    fontFamily: { sans: ['Syne', 'sans-serif'], mono: ['Space Mono', 'monospace'] },
                     colors: { brand: { dark: '#030d1a', blue: '#00f0ff', green: '#00ff88', red: '#ff3366' } }
                 }
             }
@@ -23,7 +26,9 @@
     </script>
 
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             background: #030d1a;
@@ -34,13 +39,16 @@
         /* CRT scanlines */
         body::before {
             content: '';
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent, transparent 2px,
-                rgba(0,240,255,0.012) 2px, rgba(0,240,255,0.012) 4px
-            );
-            pointer-events: none; z-index: 9998;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    transparent, transparent 2px,
+                    rgba(0, 240, 255, 0.012) 2px, rgba(0, 240, 255, 0.012) 4px);
+            pointer-events: none;
+            z-index: 9998;
         }
 
         /* Radial vignette overlay (keep from original) */
@@ -51,8 +59,8 @@
         /* Grid */
         .grid-bg {
             background-image:
-                linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
         }
 
@@ -64,25 +72,61 @@
             border: 1px solid rgba(0, 240, 255, 0.08);
         }
 
-        nav a { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.08em; }
+        nav a {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+        }
 
         /* ── HERO ENTRANCE ANIMATIONS ── */
         @keyframes fade-up {
-            from { opacity: 0; transform: translateY(24px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .anim-1 { animation: fade-up 0.7s cubic-bezier(0.4,0,0.2,1) 0.1s both; }
-        .anim-2 { animation: fade-up 0.7s cubic-bezier(0.4,0,0.2,1) 0.25s both; }
-        .anim-3 { animation: fade-up 0.7s cubic-bezier(0.4,0,0.2,1) 0.4s both; }
-        .anim-4 { animation: fade-up 0.7s cubic-bezier(0.4,0,0.2,1) 0.55s both; }
-        .anim-5 { animation: fade-up 0.7s cubic-bezier(0.4,0,0.2,1) 0.7s both; }
+
+        .anim-1 {
+            animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+        }
+
+        .anim-2 {
+            animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.25s both;
+        }
+
+        .anim-3 {
+            animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+        }
+
+        .anim-4 {
+            animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.55s both;
+        }
+
+        .anim-5 {
+            animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.7s both;
+        }
 
         /* Live dot pulse */
         @keyframes pulse-glow {
-            0%,100% { box-shadow: 0 0 4px #00ff88, 0 0 8px #00ff88; }
-            50% { box-shadow: 0 0 8px #00ff88, 0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.3); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 4px #00ff88, 0 0 8px #00ff88;
+            }
+
+            50% {
+                box-shadow: 0 0 8px #00ff88, 0 0 20px #00ff88, 0 0 40px rgba(0, 255, 136, 0.3);
+            }
         }
-        .live-dot { animation: pulse-glow 2s ease-in-out infinite; }
+
+        .live-dot {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
 
         /* Headline gradient text */
         .gradient-text {
@@ -94,33 +138,67 @@
 
         /* Facility cards */
         .facility-card {
-            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
+
         .facility-card::before {
             content: '';
-            position: absolute; inset: 0;
+            position: absolute;
+            inset: 0;
             opacity: 0;
             transition: opacity 0.35s;
         }
-        .facility-card:hover { transform: translateY(-6px); }
-        .facility-card:hover::before { opacity: 1; }
 
-        .fc-blue::before  { background: radial-gradient(circle at top left, rgba(0,240,255,0.07), transparent 60%); }
-        .fc-green::before { background: radial-gradient(circle at top left, rgba(0,255,136,0.07), transparent 60%); }
-        .fc-purple::before{ background: radial-gradient(circle at top left, rgba(168,85,247,0.07), transparent 60%); }
-        .fc-red::before   { background: radial-gradient(circle at top left, rgba(255,51,102,0.07), transparent 60%); }
+        .facility-card:hover {
+            transform: translateY(-6px);
+        }
 
-        .facility-card:hover .fc-icon { transform: scale(1.15) rotate(-3deg); }
-        .fc-icon { transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .facility-card:hover::before {
+            opacity: 1;
+        }
+
+        .fc-blue::before {
+            background: radial-gradient(circle at top left, rgba(0, 240, 255, 0.07), transparent 60%);
+        }
+
+        .fc-green::before {
+            background: radial-gradient(circle at top left, rgba(0, 255, 136, 0.07), transparent 60%);
+        }
+
+        .fc-purple::before {
+            background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.07), transparent 60%);
+        }
+
+        .fc-red::before {
+            background: radial-gradient(circle at top left, rgba(255, 51, 102, 0.07), transparent 60%);
+        }
+
+        .facility-card:hover .fc-icon {
+            transform: scale(1.15) rotate(-3deg);
+        }
+
+        .fc-icon {
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
         /* Stat counter animation */
         @keyframes count-in {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .stat-val { animation: count-in 0.5s ease both; }
+
+        .stat-val {
+            animation: count-in 0.5s ease both;
+        }
 
         /* CTA buttons */
         .cta-primary {
@@ -134,15 +212,24 @@
             position: relative;
             overflow: hidden;
         }
+
         .cta-primary::after {
             content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
             transform: translateX(-100%);
             transition: transform 0.4s ease;
         }
-        .cta-primary:hover { background: white; box-shadow: 0 0 30px rgba(0,240,255,0.5); }
-        .cta-primary:hover::after { transform: translateX(100%); }
+
+        .cta-primary:hover {
+            background: white;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .cta-primary:hover::after {
+            transform: translateX(100%);
+        }
 
         .cta-secondary {
             font-family: 'Space Mono', monospace;
@@ -151,29 +238,62 @@
             text-transform: uppercase;
             transition: all 0.25s ease;
         }
-        .cta-secondary:hover { background: rgba(255,255,255,0.08); }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
 
         /* Scroll reveal */
-        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
         /* Horizontal ticker */
-        .ticker-wrap { overflow: hidden; background: rgba(0,240,255,0.04); border-top: 1px solid rgba(0,240,255,0.1); border-bottom: 1px solid rgba(0,240,255,0.1); }
-        .ticker-content { display: inline-flex; white-space: nowrap; animation: ticker 28s linear infinite; }
-        @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        .ticker-wrap {
+            overflow: hidden;
+            background: rgba(0, 240, 255, 0.04);
+            border-top: 1px solid rgba(0, 240, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .ticker-content {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: ticker 28s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% {
+                transform: translateX(0)
+            }
+
+            100% {
+                transform: translateX(-50%)
+            }
+        }
 
         /* Section divider */
         .section-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.15), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.15), transparent);
         }
 
         /* Process step */
-        .process-step { counter-increment: steps; }
+        .process-step {
+            counter-increment: steps;
+        }
+
         .step-num {
             font-family: 'Space Mono', monospace;
             font-size: 11px;
-            color: rgba(0,240,255,0.5);
+            color: rgba(0, 240, 255, 0.5);
             letter-spacing: 0.1em;
         }
 
@@ -181,17 +301,36 @@
         .testimonial-card {
             transition: all 0.3s ease;
         }
-        .testimonial-card:hover { transform: translateY(-4px); border-color: rgba(0,240,255,0.2) !important; }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 240, 255, 0.2) !important;
+        }
 
         /* Footer links */
-        footer a { transition: color 0.2s; }
-        footer a:hover { color: #00f0ff; }
+        footer a {
+            transition: color 0.2s;
+        }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #030d1a; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.2); border-radius: 3px; }
+        footer a:hover {
+            color: #00f0ff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #030d1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.2);
+            border-radius: 3px;
+        }
     </style>
 </head>
+
 <body class="antialiased text-slate-300 grid-bg">
 
     <!-- THREE.JS 3D BACKGROUND (preserved from original) -->
@@ -201,16 +340,22 @@
     <!-- NAV -->
     <nav class="fixed w-full z-50 glass border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-white" style="font-family:'Syne',sans-serif">
+            <a href="index.html" class="flex items-center gap-2 text-xl font-bold text-white"
+                style="font-family:'Syne',sans-serif">
                 <i class="fa-solid fa-shield-halved text-brand-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.8)]"></i>
                 Fearlessvest
             </a>
             <div class="hidden md:flex items-center gap-8">
-                <a href="market-today.html" class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Market</a>
-                <a href="sandbox.html" class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Sandbox</a>
-                <a href="analysis.html" class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Analysis</a>
-                <a href="chatbot.html" class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">AI Chat</a>
-                <a href="dashboard.html" class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Dashboard</a>
+                <a href="market-today.html"
+                    class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Market</a>
+                <a href="sandbox.html"
+                    class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Sandbox</a>
+                <a href="analysis.html"
+                    class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Analysis</a>
+                <a href="chatbot.html"
+                    class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">AI Chat</a>
+                <a href="dashboard.html"
+                    class="text-slate-400 hover:text-brand-blue transition uppercase tracking-widest">Dashboard</a>
                 <a href="sandbox.html" class="cta-primary px-5 py-2.5 rounded-xl font-bold">Launch →</a>
             </div>
             <!-- Mobile hamburger placeholder -->
@@ -229,20 +374,23 @@
     <section class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-32 pb-24 relative z-10">
 
         <!-- Live badge -->
-        <div class="anim-1 inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xs font-mono text-brand-green mb-8 border border-brand-green/20">
+        <div
+            class="anim-1 inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xs font-mono text-brand-green mb-8 border border-brand-green/20">
             <span class="w-2 h-2 rounded-full bg-brand-green live-dot"></span>
             Live API Integration Active &nbsp;·&nbsp; Markets Open
         </div>
 
         <!-- Headline -->
-        <h1 class="anim-2 text-5xl md:text-7xl lg:text-8xl font-extrabold text-white tracking-tight mb-6 leading-[1.0] max-w-5xl">
+        <h1
+            class="anim-2 text-5xl md:text-7xl lg:text-8xl font-extrabold text-white tracking-tight mb-6 leading-[1.0] max-w-5xl">
             Train Your Mind<br>
             Before&nbsp;<span class="gradient-text">Your Money</span>
         </h1>
 
         <!-- Sub -->
         <p class="anim-3 text-base md:text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed">
-            Fearlessvest uses live market data and AI to simulate crashes, train your emotional reflexes, and make you immune to panic selling — before it costs you real money.
+            Fearlessvest uses live market data and AI to simulate crashes, train your emotional reflexes, and make you
+            immune to panic selling — before it costs you real money.
         </p>
 
         <!-- CTAs -->
@@ -250,7 +398,8 @@
             <a href="sandbox.html" class="cta-primary px-8 py-4 rounded-xl font-bold text-sm">
                 <i class="fa-solid fa-rocket mr-2"></i>Start Simulation
             </a>
-            <a href="#about" class="cta-secondary px-8 py-4 glass text-white font-mono text-xs rounded-xl border border-white/10 uppercase tracking-widest">
+            <a href="#about"
+                class="cta-secondary px-8 py-4 glass text-white font-mono text-xs rounded-xl border border-white/10 uppercase tracking-widest">
                 Explore Facilities
             </a>
         </div>
@@ -258,20 +407,24 @@
         <!-- Stats row -->
         <div class="anim-5 flex flex-wrap justify-center gap-8 md:gap-16">
             <div class="text-center">
-                <div class="stat-val text-3xl font-extrabold text-white font-mono">94<span class="text-brand-green text-xl">%</span></div>
+                <div class="stat-val text-3xl font-extrabold text-white font-mono">94<span
+                        class="text-brand-green text-xl">%</span></div>
                 <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Hold-Rate Trained</div>
             </div>
             <div class="text-center">
-                <div class="stat-val text-3xl font-extrabold text-white font-mono">3<span class="text-brand-blue text-xl">+</span></div>
+                <div class="stat-val text-3xl font-extrabold text-white font-mono">3<span
+                        class="text-brand-blue text-xl">+</span></div>
                 <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Historic Crashes</div>
             </div>
             <div class="text-center">
-                <div class="stat-val text-3xl font-extrabold text-white font-mono">24<span class="text-brand-blue text-xl">/7</span></div>
+                <div class="stat-val text-3xl font-extrabold text-white font-mono">24<span
+                        class="text-brand-blue text-xl">/7</span></div>
                 <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">AI Advisor Live</div>
             </div>
             <div class="text-center">
-                <div class="stat-val text-3xl font-extrabold text-white font-mono">$0</div>
-                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Real Money at Risk</div>
+                <div class="stat-val text-3xl font-extrabold text-white font-mono">₹0</div>
+                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Real Money at Risk
+                </div>
             </div>
         </div>
 
@@ -293,7 +446,8 @@
                     Four Facilities.<br>One <span class="gradient-text">Mission.</span>
                 </h2>
                 <p class="text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                    We don't tell you <em>what</em> to buy. We train your mind on <em>how to hold</em>. Every facility is built around the psychology of investing, not just the math.
+                    We don't tell you <em>what</em> to buy. We train your mind on <em>how to hold</em>. Every facility
+                    is built around the psychology of investing, not just the math.
                 </p>
             </div>
 
@@ -301,16 +455,20 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 <!-- Market Today -->
-                <a href="market-today.html" class="facility-card fc-blue glass rounded-2xl p-8 border border-white/5 hover:border-brand-blue/30 block reveal">
+                <a href="market-today.html"
+                    class="facility-card fc-blue glass rounded-2xl p-8 border border-white/5 hover:border-brand-blue/30 block reveal">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="fc-icon w-14 h-14 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center">
+                        <div
+                            class="fc-icon w-14 h-14 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center">
                             <i class="fa-solid fa-chart-line text-2xl text-brand-blue"></i>
                         </div>
-                        <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-green/10 text-brand-green border border-brand-green/20 uppercase tracking-wider">Live</span>
+                        <span
+                            class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-green/10 text-brand-green border border-brand-green/20 uppercase tracking-wider">Live</span>
                     </div>
                     <h3 class="text-2xl font-bold text-white mb-2">Live Market Analysis</h3>
                     <p class="text-sm text-slate-400 leading-relaxed mb-5">
-                        Real-time indices, Fear & Greed gauge, sector heatmap, and an AI daily briefing that translates complex movements into plain-English reasoning.
+                        Real-time indices, Fear & Greed gauge, sector heatmap, and an AI daily briefing that translates
+                        complex movements into plain-English reasoning.
                     </p>
                     <div class="flex items-center gap-2 text-xs font-mono text-brand-blue">
                         Open Today's Market <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
@@ -318,16 +476,21 @@
                 </a>
 
                 <!-- Sandbox -->
-                <a href="sandbox.html" class="facility-card fc-red glass rounded-2xl p-8 border border-white/5 hover:border-brand-red/30 block reveal">
+                <a href="sandbox.html"
+                    class="facility-card fc-red glass rounded-2xl p-8 border border-white/5 hover:border-brand-red/30 block reveal">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="fc-icon w-14 h-14 rounded-xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center">
+                        <div
+                            class="fc-icon w-14 h-14 rounded-xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center">
                             <i class="fa-solid fa-radiation text-2xl text-brand-red"></i>
                         </div>
-                        <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-red/10 text-brand-red border border-brand-red/20 uppercase tracking-wider">High Impact</span>
+                        <span
+                            class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-red/10 text-brand-red border border-brand-red/20 uppercase tracking-wider">High
+                            Impact</span>
                     </div>
                     <h3 class="text-2xl font-bold text-white mb-2">Crash Simulator</h3>
                     <p class="text-sm text-slate-400 leading-relaxed mb-5">
-                        Time-travel through 2008, COVID-19, and the Dot-com collapse. Make Hold / Buy / Sell decisions in real-time as the market collapses around you. Get scored.
+                        Time-travel through 2008, COVID-19, and the Dot-com collapse. Make Hold / Buy / Sell decisions
+                        in real-time as the market collapses around you. Get scored.
                     </p>
                     <div class="flex items-center gap-2 text-xs font-mono text-brand-red">
                         Enter the Sandbox <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
@@ -335,16 +498,20 @@
                 </a>
 
                 <!-- Analysis -->
-                <a href="analysis.html" class="facility-card fc-purple glass rounded-2xl p-8 border border-white/5 hover:border-purple-500/30 block reveal">
+                <a href="analysis.html"
+                    class="facility-card fc-purple glass rounded-2xl p-8 border border-white/5 hover:border-purple-500/30 block reveal">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="fc-icon w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                        <div
+                            class="fc-icon w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
                             <i class="fa-solid fa-magnifying-glass-chart text-2xl text-purple-400"></i>
                         </div>
-                        <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider">AI-Powered</span>
+                        <span
+                            class="text-[10px] font-mono px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider">AI-Powered</span>
                     </div>
                     <h3 class="text-2xl font-bold text-white mb-2">Portfolio Analysis</h3>
                     <p class="text-sm text-slate-400 leading-relaxed mb-5">
-                        Deep behavioral + quantitative analysis of your holdings. Risk scores, concentration alerts, performance vs S&P 500, and Claude-generated psychological insight.
+                        Deep behavioral + quantitative analysis of your holdings. Risk scores, concentration alerts,
+                        performance vs S&P 500, and Claude-generated psychological insight.
                     </p>
                     <div class="flex items-center gap-2 text-xs font-mono text-purple-400">
                         Analyze Portfolio <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
@@ -352,16 +519,20 @@
                 </a>
 
                 <!-- AI Chat -->
-                <a href="chatbot.html" class="facility-card fc-green glass rounded-2xl p-8 border border-white/5 hover:border-brand-green/30 block reveal">
+                <a href="chatbot.html"
+                    class="facility-card fc-green glass rounded-2xl p-8 border border-white/5 hover:border-brand-green/30 block reveal">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="fc-icon w-14 h-14 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center">
+                        <div
+                            class="fc-icon w-14 h-14 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center">
                             <i class="fa-solid fa-brain text-2xl text-brand-green"></i>
                         </div>
-                        <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-green/10 text-brand-green border border-brand-green/20 uppercase tracking-wider">24/7</span>
+                        <span
+                            class="text-[10px] font-mono px-3 py-1 rounded-full bg-brand-green/10 text-brand-green border border-brand-green/20 uppercase tracking-wider">24/7</span>
                     </div>
                     <h3 class="text-2xl font-bold text-white mb-2">VERA — AI Advisor</h3>
                     <p class="text-sm text-slate-400 leading-relaxed mb-5">
-                        Your Volatility Emotion Response AI. VERA talks you through panic, counters fear with statistics, and helps you recognize cognitive biases before they cost you.
+                        Your Volatility Emotion Response AI. VERA talks you through panic, counters fear with
+                        statistics, and helps you recognize cognitive biases before they cost you.
                     </p>
                     <div class="flex items-center gap-2 text-xs font-mono text-brand-green">
                         Talk to VERA <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
@@ -380,43 +551,52 @@
             <div class="text-center mb-16 reveal">
                 <div class="text-[10px] font-mono text-brand-blue uppercase tracking-[0.3em] mb-4">The Method</div>
                 <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4">How It Works</h2>
-                <p class="text-slate-400 max-w-xl mx-auto text-sm">Three steps to become the investor who doesn't panic.</p>
+                <p class="text-slate-400 max-w-xl mx-auto text-sm">Three steps to become the investor who doesn't panic.
+                </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 reveal">
 
                 <div class="glass rounded-2xl p-8 border border-white/5 relative overflow-hidden">
                     <div class="step-num mb-4">01 —</div>
-                    <div class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center mb-5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center mb-5">
                         <i class="fa-solid fa-person-chalkboard text-brand-blue text-lg"></i>
                     </div>
                     <h3 class="text-xl font-bold text-white mb-3">Simulate</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        Enter the crash simulator. Experience 2008, COVID, and Dot-com at 10x speed. Your portfolio bleeds in real-time. Make decisions under pressure — no real money, full real psychology.
+                        Enter the crash simulator. Experience 2008, COVID, and Dot-com at 10x speed. Your portfolio
+                        bleeds in real-time. Make decisions under pressure — no real money, full real psychology.
                     </p>
                     <div class="absolute bottom-0 right-0 w-24 h-24 bg-brand-blue/3 rounded-tl-full"></div>
                 </div>
 
-                <div class="glass rounded-2xl p-8 border border-white/5 relative overflow-hidden" style="margin-top:0; margin-top: 24px">
+                <div class="glass rounded-2xl p-8 border border-white/5 relative overflow-hidden"
+                    style="margin-top:0; margin-top: 24px">
                     <div class="step-num mb-4">02 —</div>
-                    <div class="w-12 h-12 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center mb-5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center mb-5">
                         <i class="fa-solid fa-chart-simple text-brand-green text-lg"></i>
                     </div>
                     <h3 class="text-xl font-bold text-white mb-3">Diagnose</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        Your decisions are scored and analyzed. Fear Shield identifies your specific emotional triggers — panic selling patterns, FOMO responses, loss aversion thresholds. Know yourself first.
+                        Your decisions are scored and analyzed. Fear Shield identifies your specific emotional triggers
+                        — panic selling patterns, FOMO responses, loss aversion thresholds. Know yourself first.
                     </p>
                     <div class="absolute bottom-0 right-0 w-24 h-24 bg-brand-green/3 rounded-tl-full"></div>
                 </div>
 
                 <div class="glass rounded-2xl p-8 border border-white/5 relative overflow-hidden">
                     <div class="step-num mb-4">03 —</div>
-                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-5">
                         <i class="fa-solid fa-brain text-purple-400 text-lg"></i>
                     </div>
                     <h3 class="text-xl font-bold text-white mb-3">Immunize</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        VERA reinforces rational thinking every time you're anxious. Your behavioral baseline improves with each session. Real markets become manageable when you've already survived the worst simulated ones.
+                        VERA reinforces rational thinking every time you're anxious. Your behavioral baseline improves
+                        with each session. Real markets become manageable when you've already survived the worst
+                        simulated ones.
                     </p>
                     <div class="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/3 rounded-tl-full"></div>
                 </div>
@@ -444,10 +624,13 @@
                         <i class="fa-solid fa-star text-yellow-400 text-xs"></i>
                     </div>
                     <p class="text-sm text-slate-300 leading-relaxed mb-5 italic">
-                        "I ran the 2008 sim three times and panic sold every single time. By the fourth run I held. That training literally saved my portfolio during last year's correction."
+                        "I ran the 2008 sim three times and panic sold every single time. By the fourth run I held. That
+                        training literally saved my portfolio during last year's correction."
                     </p>
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-brand-blue/20 flex items-center justify-center text-xs font-bold text-brand-blue font-mono">RK</div>
+                        <div
+                            class="w-8 h-8 rounded-lg bg-brand-blue/20 flex items-center justify-center text-xs font-bold text-brand-blue font-mono">
+                            RK</div>
                         <div>
                             <div class="text-xs text-white font-semibold">Rohan K.</div>
                             <div class="text-[10px] text-slate-500 font-mono">Retail Investor · Mumbai</div>
@@ -464,10 +647,14 @@
                         <i class="fa-solid fa-star text-yellow-400 text-xs"></i>
                     </div>
                     <p class="text-sm text-slate-300 leading-relaxed mb-5 italic">
-                        "VERA talked me out of selling during the September dip. She pulled up my own simulation scores and said 'you've been here before, you held, you scored 92.' That was it. I closed the brokerage app."
+                        "VERA talked me out of selling during the September dip. She pulled up my own simulation scores
+                        and said 'you've been here before, you held, you scored 92.' That was it. I closed the brokerage
+                        app."
                     </p>
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-brand-green/20 flex items-center justify-center text-xs font-bold text-brand-green font-mono">AL</div>
+                        <div
+                            class="w-8 h-8 rounded-lg bg-brand-green/20 flex items-center justify-center text-xs font-bold text-brand-green font-mono">
+                            AL</div>
                         <div>
                             <div class="text-xs text-white font-semibold">Aisha L.</div>
                             <div class="text-[10px] text-slate-500 font-mono">Long-term investor · London</div>
@@ -484,10 +671,14 @@
                         <i class="fa-solid fa-star-half-stroke text-yellow-400 text-xs"></i>
                     </div>
                     <p class="text-sm text-slate-300 leading-relaxed mb-5 italic">
-                        "The portfolio analysis found I was 71% concentrated in my top 3 holdings. I knew it intellectually, but seeing it scored as 'HIGH RISK' next to my behavioral profile made it click."
+                        "The portfolio analysis found I was 71% concentrated in my top 3 holdings. I knew it
+                        intellectually, but seeing it scored as 'HIGH RISK' next to my behavioral profile made it
+                        click."
                     </p>
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-400 font-mono">MS</div>
+                        <div
+                            class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-400 font-mono">
+                            MS</div>
                         <div>
                             <div class="text-xs text-white font-semibold">Marco S.</div>
                             <div class="text-[10px] text-slate-500 font-mono">Equity trader · Milan</div>
@@ -501,22 +692,27 @@
     <!-- ══════════════════ CTA BANNER ══════════════════ -->
     <section class="py-24 px-6 relative z-10 reveal">
         <div class="max-w-4xl mx-auto glass rounded-3xl p-12 md:p-16 border border-brand-blue/15 text-center relative overflow-hidden"
-             style="background:rgba(0,240,255,0.03)">
+            style="background:rgba(0,240,255,0.03)">
             <!-- Glow -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-blue/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div
+                class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-blue/10 rounded-full blur-3xl pointer-events-none">
+            </div>
 
             <div class="text-[10px] font-mono text-brand-blue uppercase tracking-[0.3em] mb-5">Get Started — Free</div>
             <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
                 The Market Will Crash Again.<br><span class="gradient-text">Will You Be Ready?</span>
             </h2>
             <p class="text-sm text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed">
-                Every investor <em>thinks</em> they'll hold through the panic. Almost none do. Fearlessvest is where you find out which one you are — before it costs you.
+                Every investor <em>thinks</em> they'll hold through the panic. Almost none do. Fearlessvest is where you
+                find out which one you are — before it costs you.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="sandbox.html" class="cta-primary px-8 py-4 rounded-xl font-bold inline-flex items-center justify-center gap-2">
+                <a href="sandbox.html"
+                    class="cta-primary px-8 py-4 rounded-xl font-bold inline-flex items-center justify-center gap-2">
                     <i class="fa-solid fa-vr-cardboard"></i> Enter the Crash Simulator
                 </a>
-                <a href="dashboard.html" class="cta-secondary px-8 py-4 rounded-xl text-white glass border border-white/10 inline-flex items-center justify-center gap-2">
+                <a href="dashboard.html"
+                    class="cta-secondary px-8 py-4 rounded-xl text-white glass border border-white/10 inline-flex items-center justify-center gap-2">
                     <i class="fa-solid fa-shield-halved text-brand-blue"></i> View Dashboard
                 </a>
             </div>
@@ -528,26 +724,37 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
                 <div class="md:col-span-2">
-                    <div class="flex items-center gap-2 text-xl font-bold text-white mb-3" style="font-family:'Syne',sans-serif">
+                    <div class="flex items-center gap-2 text-xl font-bold text-white mb-3"
+                        style="font-family:'Syne',sans-serif">
                         <i class="fa-solid fa-shield-halved text-brand-blue"></i> Fearlessvest
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed max-w-xs font-mono">
-                        A psychological training ground for investors. We build emotional resilience, not trading strategies.
+                        A psychological training ground for investors. We build emotional resilience, not trading
+                        strategies.
                     </p>
                     <div class="flex gap-3 mt-5">
-                        <a href="#" class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i class="fa-brands fa-x-twitter text-xs"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i class="fa-brands fa-linkedin text-xs"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i class="fa-brands fa-github text-xs"></i></a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i
+                                class="fa-brands fa-x-twitter text-xs"></i></a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i
+                                class="fa-brands fa-linkedin text-xs"></i></a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-lg glass border border-white/8 flex items-center justify-center text-slate-400 hover:text-brand-blue transition"><i
+                                class="fa-brands fa-github text-xs"></i></a>
                     </div>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-4">Facilities</div>
                     <div class="space-y-2.5">
-                        <div><a href="market-today.html" class="text-xs text-slate-400 font-mono">Today's Market</a></div>
+                        <div><a href="market-today.html" class="text-xs text-slate-400 font-mono">Today's Market</a>
+                        </div>
                         <div><a href="sandbox.html" class="text-xs text-slate-400 font-mono">Crash Simulator</a></div>
-                        <div><a href="analysis.html" class="text-xs text-slate-400 font-mono">Portfolio Analysis</a></div>
+                        <div><a href="analysis.html" class="text-xs text-slate-400 font-mono">Portfolio Analysis</a>
+                        </div>
                         <div><a href="chatbot.html" class="text-xs text-slate-400 font-mono">VERA AI Advisor</a></div>
-                        <div><a href="dashboard.html" class="text-xs text-slate-400 font-mono">Fear Shield Dashboard</a></div>
+                        <div><a href="dashboard.html" class="text-xs text-slate-400 font-mono">Fear Shield Dashboard</a>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -563,7 +770,8 @@
             <div class="section-divider mb-6"></div>
             <div class="flex flex-col md:flex-row justify-between items-center gap-3">
                 <p class="text-[10px] font-mono text-slate-600">&copy; 2026 Fearlessvest. All rights reserved.</p>
-                <p class="text-[10px] font-mono text-slate-600">Educational simulations only · Not financial advice · No real money involved</p>
+                <p class="text-[10px] font-mono text-slate-600">Educational simulations only · Not financial advice · No
+                    real money involved</p>
             </div>
         </div>
     </footer>
@@ -572,12 +780,18 @@
     <script>
         // TICKER
         const tickerData = [
-            {sym:'AAPL',val:'189.42',chg:'+1.2%',up:true},{sym:'NVDA',val:'872.10',chg:'+3.7%',up:true},
-            {sym:'MSFT',val:'412.88',chg:'+0.8%',up:true},{sym:'TSLA',val:'241.30',chg:'-2.1%',up:false},
-            {sym:'META',val:'534.70',chg:'+1.4%',up:true},{sym:'AMZN',val:'193.50',chg:'+0.5%',up:true},
-            {sym:'GOOGL',val:'167.20',chg:'-0.3%',up:false},{sym:'BTC',val:'84,200',chg:'+2.8%',up:true},
-            {sym:'ETH',val:'3,210',chg:'+1.1%',up:true},{sym:'GLD',val:'3,140',chg:'+0.4%',up:true},
-            {sym:'SPY',val:'577.40',chg:'+1.2%',up:true},{sym:'VIX',val:'22.47',chg:'+3.1%',up:false},
+            { sym: 'RELIANCE', val: '₹2,930.50', chg: '+1.18%', up: true },
+            { sym: 'TCS', val: '₹3,845.20', chg: '-0.41%', up: false },
+            { sym: 'HDFCBANK', val: '₹1,520.80', chg: '+0.82%', up: true },
+            { sym: 'INFY', val: '₹1,480.10', chg: '+2.10%', up: true },
+            { sym: 'SBIN', val: '₹810.45', chg: '-2.08%', up: false },
+            { sym: 'ITC', val: '₹435.60', chg: '-1.87%', up: false },
+            { sym: 'ICICIBANK', val: '₹1,085.20', chg: '+1.48%', up: true },
+            { sym: 'LT', val: '₹3,650.00', chg: '-1.68%', up: false },
+            { sym: 'BAJFINANCE', val: '₹7,112.80', chg: '-1.28%', up: false },
+            { sym: 'MARUTI', val: '₹12,472.50', chg: '-0.98%', up: false },
+            { sym: 'NIFTY 50', val: '22,642.15', chg: '+0.84%', up: true },
+            { sym: 'SENSEX', val: '74,680.20', chg: '+0.91%', up: true },
         ];
         const tape = document.getElementById('ticker-tape');
         let html = '';
@@ -587,7 +801,7 @@
                 html += `<span class="inline-flex items-center gap-2 px-6 text-xs font-mono border-r border-white/8" style="color:rgba(255,255,255,0.6)">
                     <span style="color:white;font-weight:700">${t.sym}</span>
                     <span>${t.val}</span>
-                    <span style="color:${col}">${t.up?'▲':'▼'} ${t.chg}</span>
+                    <span style="color:${col}">${t.up ? '▲' : '▼'} ${t.chg}</span>
                 </span>`;
             });
         }
@@ -671,4 +885,5 @@
         document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     </script>
 </body>
+
 </html>

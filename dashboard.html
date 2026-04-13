@@ -331,8 +331,8 @@
             </div>
             <div class="glass rounded-xl p-5 border border-white/5">
                 <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2">Simulations Run</div>
-                <div class="text-3xl font-extrabold text-white font-mono">12</div>
-                <div class="text-[10px] text-slate-400 font-mono mt-1.5">Last: 2008 Crash · Apr 9</div>
+                <div class="text-3xl font-extrabold text-white font-mono" id="sim-count-display">12</div>
+                <div class="text-[10px] text-slate-400 font-mono mt-1.5" id="sim-last-display">Last: 2008 Crash · Apr 9</div>
             </div>
             <div class="glass rounded-xl p-5 border border-white/5">
                 <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2">Hold Rate</div>
@@ -656,12 +656,12 @@
                     <div>
                         <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">Total Value
                         </div>
-                        <div class="text-2xl font-extrabold text-white font-mono">₹124,750</div>
+                        <div class="text-2xl font-extrabold text-white font-mono" id="dash-total-val">₹124,750</div>
                     </div>
                     <div class="text-right">
                         <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">All-Time P&L
                         </div>
-                        <div class="text-2xl font-extrabold text-brand-green font-mono">+₹24,750</div>
+                        <div class="text-2xl font-extrabold text-brand-green font-mono" id="dash-total-pnl">+₹24,750</div>
                     </div>
                 </div>
             </div>
@@ -763,19 +763,28 @@
         setInterval(tick, 1000); tick();
 
         // ── SIM HISTORY TABLE ──
-        const simRows = [
-            { name: '2008 Financial Crisis (-56%)', date: 'Apr 9, 2026', action: 'Held Position', actionUp: true, pnl: '+$18,200', score: 92 },
-            { name: 'COVID-19 Flash Crash (-34%)', date: 'Apr 7, 2026', action: 'Panic Sold', actionUp: false, pnl: '-$8,400', score: 45 },
-            { name: 'Tech Correction (-15%)', date: 'Apr 5, 2026', action: 'Bought Dip', actionUp: true, pnl: '+$4,100', score: 98 },
-            { name: 'Dot-com Bubble (-78%)', date: 'Apr 3, 2026', action: 'Held Position', actionUp: true, pnl: '+$11,000', score: 76 },
-        ];
+        let simRows = JSON.parse(localStorage.getItem('simHistory')) || [];
+        if (simRows.length === 0) {
+            simRows = [
+                { name: '2008 Financial Crisis', date: 'Apr 9', action: 'Held Position', actionUp: true, pnl: '+₹18,200', score: 92 },
+                { name: 'COVID-19 Flash Crash', date: 'Apr 7', action: 'Panic Sold', actionUp: false, pnl: '-₹8,400', score: 45 },
+                { name: 'Tech Correction', date: 'Apr 5', action: 'Bought Dip', actionUp: true, pnl: '+₹4,100', score: 98 },
+                { name: 'Dot-com Bubble', date: 'Apr 3', action: 'Held Position', actionUp: true, pnl: '+₹11,000', score: 76 },
+            ];
+        }
+
+        document.getElementById('sim-count-display').textContent = JSON.parse(localStorage.getItem('simHistory'))?.length || 12;
+        if (simRows.length > 0) {
+            document.getElementById('sim-last-display').textContent = `Last: ${simRows[0].name.slice(0, 15)}... · ${simRows[0].date.split(',')[0]}`;
+        }
+
         const tbody = document.getElementById('sim-history-body');
         tbody.innerHTML = simRows.map(r => {
             const sc = r.score >= 80 ? '#00ff88' : r.score >= 60 ? '#ffcc00' : '#ff3366';
             const ac = r.actionUp ? '#00ff88' : '#ff3366';
             const icon = r.actionUp ? 'fa-check' : 'fa-xmark';
             return `<tr class="sim-row border-b border-white/4 text-xs">
-                <td class="py-3.5 pr-4 text-slate-300">${r.name}</td>
+                <td class="py-3.5 pr-4 text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">${r.name}</td>
                 <td class="py-3.5 text-slate-500 font-mono whitespace-nowrap">${r.date}</td>
                 <td class="py-3.5" style="color:${ac}"><i class="fa-solid ${icon} mr-1.5 text-[10px]"></i>${r.action}</td>
                 <td class="py-3.5 font-mono font-bold" style="color:${r.pnl.startsWith('+') ? '#00ff88' : '#ff3366'}">${r.pnl}</td>
@@ -845,29 +854,45 @@
         window.addEventListener('load', drawEmotionChart);
 
         // ── PORTFOLIO MINI LIST ──
-        const miniHoldings = [
-            { sym: 'NVDA', name: 'NVIDIA', pct: '+81.7%', weight: 28, color: '#00f0ff', up: true },
-            { sym: 'AAPL', name: 'Apple', pct: '+30.3%', weight: 24, color: '#00ff88', up: true },
-            { sym: 'MSFT', name: 'Microsoft', pct: '+33.2%', weight: 21, color: '#a855f7', up: true },
-            { sym: 'SPY', name: 'S&P 500 ETF', pct: '+37.4%', weight: 22, color: '#ffcc00', up: true },
-            { sym: 'PLTR', name: 'Palantir', pct: '+37.8%', weight: 3, color: '#ff3366', up: true },
+        const holdings = [
+            { sym: 'RELIANCE', name: 'Reliance Industries', shares: 12, cost: 2700, current: 2850, sector: 'Energy', risk: 'medium' },
+            { sym: 'TCS', name: 'Tata Consultancy Services', shares: 8, cost: 3800, current: 3920, sector: 'IT', risk: 'low' },
+            { sym: 'INFY', name: 'Infosys', shares: 10, cost: 1450, current: 1500, sector: 'IT', risk: 'medium' },
+            { sym: 'HDFCBANK', name: 'HDFC Bank', shares: 6, cost: 1550, current: 1600, sector: 'Banking', risk: 'low' },
+            { sym: 'ITC', name: 'ITC Ltd', shares: 20, cost: 420, current: 445, sector: 'FMCG', risk: 'low' }
         ];
-        document.getElementById('portfolio-mini').innerHTML = miniHoldings.map(h =>
-            `<div class="flex items-center gap-3 py-2 border-b border-white/4 last:border-0">
+
+        const COLORS = ['#00f0ff', '#00ff88', '#a855f7', '#ffcc00', '#ff3366', '#ff6b35'];
+        const totalPortfolio = holdings.reduce((s, h) => s + h.current * h.shares, 0);
+        const totalInvested = holdings.reduce((s, h) => s + h.cost * h.shares, 0);
+        const totalDashPnl = totalPortfolio - totalInvested;
+
+        document.getElementById('portfolio-mini').innerHTML = holdings.map((h, i) => {
+            const val = h.current * h.shares;
+            const cost = h.cost * h.shares;
+            const pnlPct = ((val - cost) / cost * 100);
+            const weight = (val / totalPortfolio * 100).toFixed(1);
+            const up = pnlPct >= 0;
+            const color = COLORS[i % COLORS.length];
+            return `<div class="flex items-center gap-3 py-2 border-b border-white/4 last:border-0">
                 <div class="w-7 h-7 rounded-md text-[10px] font-bold font-mono flex items-center justify-center flex-shrink-0"
-                     style="background:${h.color}18;color:${h.color}">${h.sym.slice(0, 4)}</div>
+                     style="background:${color}18;color:${color}">${h.sym.slice(0, 4)}</div>
                 <div class="flex-1">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-xs text-white font-semibold">${h.sym}</span>
-                        <span class="text-xs font-mono font-bold" style="color:${h.up ? '#00ff88' : '#ff3366'}">${h.pct}</span>
+                        <span class="text-xs font-mono font-bold" style="color:${up ? '#00ff88' : '#ff3366'}">${up ? '+' : ''}${pnlPct.toFixed(1)}%</span>
                     </div>
                     <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full" style="width:${h.weight}%;background:${h.color}"></div>
+                        <div class="h-full rounded-full" style="width:${weight}%;background:${color}"></div>
                     </div>
                 </div>
-                <span class="text-[10px] font-mono text-slate-500 w-8 text-right">${h.weight}%</span>
-            </div>`
-        ).join('');
+                <span class="text-[10px] font-mono text-slate-500 w-8 text-right">${weight}%</span>
+            </div>`;
+        }).join('');
+
+        document.getElementById('dash-total-val').textContent = '₹' + totalPortfolio.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        document.getElementById('dash-total-pnl').textContent = `${totalDashPnl >= 0 ? '+' : ''}₹` + Math.abs(totalDashPnl).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        document.getElementById('dash-total-pnl').className = `text-2xl font-extrabold font-mono text-${totalDashPnl >= 0 ? 'brand-green' : 'brand-red'}`;
 
         // ── THREE.JS BACKGROUND ──
         const canvas3d = document.getElementById('trading-3d-bg');

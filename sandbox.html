@@ -1328,6 +1328,34 @@
             const pnlPct = (pnl / state.startVal) * 100;
             const score = state.score;
             const isGood = score >= 70;
+            
+            // Save to localStorage
+            let history = JSON.parse(localStorage.getItem('simHistory')) || [];
+            let action = 'Held Position';
+            let actionUp = true;
+            if (state.decisionsMade.includes('sell')) {
+                action = 'Panic Sold';
+                actionUp = false;
+            } else if (state.decisionsMade.includes('buy')) {
+                action = 'Bought Dip';
+                actionUp = true;
+            }
+            
+            const pnlStr = pnl >= 0 ? '+₹' + pnl.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '-₹' + Math.abs(pnl).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            history.unshift({
+                name: SCENARIOS[state.scenario].label.replace(' SIMULATION', '').replace(' (1992)', '').replace(' (2021–2022)', '').replace(' (2020)', ''),
+                date: dateStr,
+                action: action,
+                actionUp: actionUp,
+                pnl: pnlStr,
+                score: score
+            });
+            
+            // Keep only latest 10
+            if (history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('simHistory', JSON.stringify(history));
 
             document.getElementById('modal-emoji').textContent = score >= 85 ? '🏆' : score >= 60 ? '📊' : '😰';
             document.getElementById('modal-title').textContent = score >= 85 ? 'Diamond Hands!' : score >= 60 ? 'You Survived.' : 'Panic Mode Activated';
